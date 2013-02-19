@@ -1006,7 +1006,7 @@ initnids(void)
 	PyModule_AddObject(m, "error", pynids_error);
 
 	/* Add versioning info */
-	PyModule_AddStringConstant(m, "__version__", "0.6.1");
+	PyModule_AddStringConstant(m, "__version__", "0.6.2");
 	PyModule_AddObject(m, "__nids_version__",
 						PyString_FromFormat("%d.%d", NIDS_MAJOR, NIDS_MINOR));
 
