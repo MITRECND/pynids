@@ -722,6 +722,7 @@ syslog_level -- log level used when syslogging events (LOG_ALERT)\n\
 scan_num_hosts -- hash table size for portscan detection (256)\n\
 scan_num_ports -- minimum ports per src. host to qualify as a portscan (10)\n\
 scan_delay -- maximum delay in milliseconds between (3000)\n\
+tcp_flow_timeout -- timeout in seconds to distinguish flows with sample tuple\n\
 \n\
 Either 'device' or 'filename' must be specified before calling nids_init().\n\
 Portscan detection may be disabled by setting 'scan_num_hosts' to zero.  See\n\
@@ -763,6 +764,8 @@ pynids_param(PyObject *na, PyObject *args)
 	else if (!strcmp(name, "pcap_timeout"))
 		int_p = &nids_params.pcap_timeout;
 #endif /* libnids >= 1.19 */
+	else if (!strcmp(name, "tcp_flow_timeout"))
+		int_p = &nids_params.tcp_flow_timeout;
 
 	if (int_p) {
 		/* FIXME - type check val for intishness */
