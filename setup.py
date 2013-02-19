@@ -37,7 +37,7 @@ class nidsMaker(build):
 
         spawn(['tar', '-zxf', self.NIDSTAR], search_path = 1)
         os.chdir(self.NIDSDIR)
-        spawn([pathjoin('.','configure'), 'CFLAGS=-fPIC'])
+        spawn([pathjoin('.','configure'), 'CFLAGS=-fPIC', '--disable-libglib', '--disable-libnet'])
         spawn(['make'], search_path = 1)
         os.chdir('..')
 
@@ -50,10 +50,10 @@ EXTRA_OBJECTS = nidsMaker.extra_objects + EXTRA_OBJECTS
 
 setup (# Distribution meta-data
         name = "pynids",
-        version = "0.6.1",
+        version = "0.6.2",
         description = "libnids wrapper",
-        author = "Jon Oberheide",
-        author_email = "jon@oberheide.org",
+        author = "Wesley Shields",
+        author_email = "wxs@atarininja.org",
         license = "GPL",
         long_description = \
 '''pynids is a python wrapper for libnids, a Network Intrusion Detection System
@@ -67,7 +67,7 @@ port scan detection.
                             #define_macros = [ ("DEBUG", None), ],
                             sources=["nidsmodule.c"],
                             include_dirs = INCLUDE_DIRS,
-                            libraries = ["pcap", "net", "glib-2.0", "gthread-2.0"],
+                            libraries = ["pcap"],
                             library_dirs = LIBRARY_DIRS,
                             extra_objects = EXTRA_OBJECTS
                         ) 

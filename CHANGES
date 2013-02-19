@@ -7,6 +7,12 @@ Attribution:
 	JO - Jon Oberheide
 	EC - Evan Cooke
 	JF - Jeff Nathan
+	WXS - Wesley Shields
+
+18 Feb 2013
+    - version 0.6.2 (WXS)
+    - don't require libglib and libnet
+    - bump bundled libnids to 1.25 (WXS)
 
 9 May 2010
     - version 0.6.1 (JO)
