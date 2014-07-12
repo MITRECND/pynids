@@ -533,9 +533,8 @@ pynids_register_##WHAT (PyObject *na, PyObject *args) 			\
 	if (FP != NULL) {											\
 		/* (re-)set single, global func ptr */					\
 		PyObject_Del(FP);										\
-	} else {													\
-		nids_register_##WHAT(PYDISPATCH);						\
 	}															\
+	nids_register_##WHAT(PYDISPATCH);							\
 	DBG("Inside register_" #WHAT "(%p)\n", pyFunc);				\
 	FP = pyFunc;												\
 	Py_INCREF(FP);												\
