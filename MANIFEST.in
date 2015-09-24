@@ -1,0 +1,3 @@
+include CHANGES COPYING Example nidsmodule.c README setup.py
+graft libnids
+global-exclude .git
