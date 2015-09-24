@@ -12,16 +12,13 @@ import os, os.path
 
 pathjoin = os.path.join
 
-PKGNAME  = 'libnids-1.25'
-PKGTAR   = PKGNAME + '.tar.gz'
-BUILDDIR = PKGNAME
+BUILDDIR = 'libnids'
 
 INCLUDE_DIRS  = ['/usr/local/include', '/opt/local/include']
 LIBRARY_DIRS  = ['/usr/local/lib', '/opt/local/lib']
 EXTRA_OBJECTS = []
 
 class nidsMaker(build):
-    NIDSTAR = PKGTAR
     NIDSDIR = BUILDDIR
     include_dirs = [ pathjoin(NIDSDIR, 'src') ]
     library_dirs = []
@@ -29,13 +26,11 @@ class nidsMaker(build):
 
     def buildNids(self):
         # extremely crude package builder
-        try:
-            os.stat(self.NIDSDIR)
-            return None           # assume already built
-        except OSError:
-            pass
 
-        spawn(['tar', '-zxf', self.NIDSTAR], search_path = 1)
+        for extra_obj in self.extra_objects:
+            if os.path.exists(extra_obj):
+                return None         # assume already built
+
         os.chdir(self.NIDSDIR)
         spawn([pathjoin('.','configure'), 'CFLAGS=-fPIC', '--disable-libglib', '--disable-libnet'])
         spawn(['make'], search_path = 1)
@@ -44,6 +39,19 @@ class nidsMaker(build):
     def run(self):
         self.buildNids()
         build.run(self)
+
+
+class nidsClean(build):
+    NIDSDIR = BUILDDIR
+
+    def cleanNids(self):
+        os.chdir(self.NIDSDIR)
+        spawn(['make','distclean'], search_path=1)
+        os.chdir('..')
+
+    def run(self):
+        self.cleanNids()
+
 
 INCLUDE_DIRS = nidsMaker.include_dirs + INCLUDE_DIRS
 EXTRA_OBJECTS = nidsMaker.extra_objects + EXTRA_OBJECTS
@@ -61,7 +69,7 @@ library offering sniffing, IP defragmentation, TCP stream reassembly and TCP
 port scan detection.
 -------
 ''',
-        cmdclass = {'build': nidsMaker},
+        cmdclass = {'build': nidsMaker, 'distclean': nidsClean},
         ext_modules = [ Extension(
                             "nidsmodule",
                             #define_macros = [ ("DEBUG", None), ],
@@ -72,5 +80,5 @@ port scan detection.
                             extra_objects = EXTRA_OBJECTS
                         ) 
                       ],
-        url = "http://jon.oberheide.org/pynids/",
+        url = "http://github.com/mitrecnd/pynids/",
       )
