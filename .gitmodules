@@ -1,3 +1,4 @@
 [submodule "libnids"]
 	path = libnids
 	url = https://github.com/mitrecnd/libnids.git
+    branch = master
