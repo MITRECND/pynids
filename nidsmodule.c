@@ -878,7 +878,8 @@ pynids_run(PyObject *na, PyObject *args)
 
 	if (pynids_offline_read) {
 		/* read until EOF, checking for exceptions along the way */
-		do { r = nids_dispatch_exc(1); } while (r > 0);
+		//do { r = nids_dispatch_exc(1); } while (r > 0);
+		r = nids_run();
 	} else {
 		/* read forever, checking for exceptions along the way */
 		do { r = nids_dispatch_exc(1); } while (r >= 0);
