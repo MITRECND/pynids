@@ -34,6 +34,42 @@
 #else
 #define DBG(p, ...)		
 #endif /* DEBUG */
+// initial 2to3
+#if PY_MAJOR_VERSION >= 3
+
+  #define PyInt_AsLong PyLong_AsLong
+  #define PyInt_AS_LONG PyLong_AS_LONG
+  #define PyInt_Check PyLong_Check
+  #define PyInt_FromLong PyLong_FromLong
+  #define PyInt_Type PyLong_Type
+  #define PyString_AsStringAndSize PyBytes_AsStringAndSize
+//  #define PyString_AsString PyBytes_AsString
+  #define PyString_AS_STRING PyBytes_AS_STRING
+  #define PyString_AsString PyUnicode_AsString
+//  #define PyString_Check PyBytes_Check
+  #define PyString_Check PyUnicode_Check
+  #define PyString_FromFormat PyUnicode_FromFormat
+  #define PyString_FromFormatV PyUnicode_FromFormatV
+//  #define PyString_FromStringAndSize PyBytes_FromStringAndSize
+  #define PyString_FromStringAndSize PyUnicode_FromStringAndSize
+//  #define PyString_FromString PyBytes_FromString
+  #define PyString_FromString PyUnicode_FromString
+  #define PyString_Join PyUnicode_Join
+//  #define PyString_Size PyBytes_Size
+  #define PyString_Size PyUnicode_Size
+  #define PyString_Type PyUnicode_Type
+  #define Py_TPFLAGS_HAVE_ITER 0
+  #define PyUnicode_AsString(x) PyBytes_AsString(PyUnicode_AsEncodedString((x), "utf-8", "strict"))
+  #define TEXT_T Py_UNICODE
+
+
+inline void PyString_ConcatAndDel(PyObject** lhs, PyObject* rhs)
+{
+    PyUnicode_Concat(*lhs, rhs);
+    Py_DECREF(rhs);
+}
+
+#endif
 
 #ifndef Py_RETURN_NONE
 # define Py_RETURN_NONE return Py_INCREF(Py_None), Py_None
@@ -66,8 +102,8 @@ typedef struct {
 	struct half_stream *hlfs;
 } HalfStream;
 
-staticforward PyTypeObject TcpStream_Type;
-staticforward PyTypeObject HalfStream_Type;
+static PyTypeObject TcpStream_Type;
+static PyTypeObject HalfStream_Type;
 
 /* wrapHalfStream used by TcpStream getter */
 static HalfStream *wrapHalfStream(struct half_stream *);
@@ -283,7 +319,7 @@ static PyGetSetDef TcpStream_getsets[] = {
 	{NULL} /* Sentinel */
 };
 
-statichere PyTypeObject TcpStream_Type = {
+static PyTypeObject TcpStream_Type = {
 	/* The ob_type field must be initialized in the module init function
 	 * to be portable to Windows without using C++. */
 	PyObject_HEAD_INIT(NULL)
@@ -307,7 +343,7 @@ statichere PyTypeObject TcpStream_Type = {
 	PyObject_GenericGetAttr,          /*tp_getattro*/
 	0,          /*tp_setattro*/
 	0,          /*tp_as_buffer*/
-	Py_TPFLAGS_HAVE_CLASS,          /*tp_flags*/
+	0,          /*tp_flags*/
 	0,     /*tp_doc*/
 	0,          /*tp_traverse*/
 	0,          /*tp_clear*/
@@ -402,7 +438,7 @@ static PyGetSetDef HalfStream_getsets[] = {
 	{NULL} /* Sentinel */
 };
 
-statichere PyTypeObject HalfStream_Type = {
+static PyTypeObject HalfStream_Type = {
 	/* The ob_type field must be initialized in the module init function
 	 * to be portable to Windows without using C++. */
 	PyObject_HEAD_INIT(NULL)
@@ -426,7 +462,7 @@ statichere PyTypeObject HalfStream_Type = {
 	PyObject_GenericGetAttr,          /*tp_getattro*/
 	PyObject_GenericSetAttr,          /*tp_setattro*/
 	0,          /*tp_as_buffer*/
-	Py_TPFLAGS_HAVE_CLASS,          /*tp_flags*/
+	0,          /*tp_flags*/
 	0,          /*tp_doc*/
 	0,          /*tp_traverse*/
 	0,          /*tp_clear*/
@@ -984,23 +1020,28 @@ static PyMethodDef pynids_methods[] = {
 };
 
 #undef mkMethod
-
+static struct PyModuleDef moduledef = {
+    PyModuleDef_HEAD_INIT,  /* m_base */
+    "nids",                 /* m_name */
+    pynidsmodule__doc__,                   /* m_doc */
+    -1,                     /* m_size */
+    pynids_methods            /* m_methods */
+};
 /* ====================================================================== */
 /* Module Initialization                                                  */
 /* ====================================================================== */
 
-DL_EXPORT(void)
-initnids(void)
-{
+PyMODINIT_FUNC PyInit_nids(void) {
 	PyObject *m;
 
 	/* Initialize the type of the new type object here; doing it here
 	 * is required for portability to Windows without requiring C++. */
-	TcpStream_Type.ob_type = &PyType_Type;
-	HalfStream_Type.ob_type = &PyType_Type;
+Py_TYPE(&	TcpStream_Type) = &PyType_Type;
+Py_TYPE(&	HalfStream_Type) = &PyType_Type;
 
 	/* Create the module and add the functions */
-	m = Py_InitModule3("nids", pynids_methods, pynidsmodule__doc__);
+
+	m = PyModule_Create(&moduledef);
 
 	/* Initialize, add our exception object */
 	pynids_error = PyErr_NewException("nids.error", NULL, NULL);
@@ -1029,6 +1070,7 @@ initnids(void)
 
 	/* Save the original nids_params */
 	origNidsParams = nids_params;
+	return m;
 }
 
 /*
