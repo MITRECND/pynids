@@ -49,8 +49,6 @@
 //  #define PyString_AsString PyBytes_AsString
 #define PyString_AS_STRING PyBytes_AS_STRING
 #define PyString_AsString PyUnicode_AsString
-//  #define PyString_Check PyBytes_Check
-#define PyString_Check PyUnicode_Check
 
 #ifndef Py_RETURN_NONE
 #define Py_RETURN_NONE return Py_INCREF(Py_None), Py_None
