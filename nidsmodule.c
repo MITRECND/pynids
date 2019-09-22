@@ -54,7 +54,6 @@
 #define PyString_FromFormat PyUnicode_FromFormat
 #define PyString_FromFormatV PyUnicode_FromFormatV
 //  #define PyBytes_FromStringAndSize PyBytes_FromStringAndSize
-#define PyBytes_FromStringAndSize PyUnicode_FromStringAndSize
 //  #define PyString_FromString PyBytes_FromString
 
 #ifndef Py_RETURN_NONE
