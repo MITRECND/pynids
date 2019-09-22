@@ -53,10 +53,9 @@
 #define PyString_Check PyUnicode_Check
 #define PyString_FromFormat PyUnicode_FromFormat
 #define PyString_FromFormatV PyUnicode_FromFormatV
-//  #define PyString_FromStringAndSize PyBytes_FromStringAndSize
-#define PyString_FromStringAndSize PyUnicode_FromStringAndSize
+//  #define PyBytes_FromStringAndSize PyBytes_FromStringAndSize
+#define PyBytes_FromStringAndSize PyUnicode_FromStringAndSize
 //  #define PyString_FromString PyBytes_FromString
-#define PyString_FromString PyUnicode_FromString
 
 #ifndef Py_RETURN_NONE
 #define Py_RETURN_NONE return Py_INCREF(Py_None), Py_None
@@ -391,13 +390,13 @@ HS_GET_INT(state)
 static PyObject *hs_get_data(HalfStream *self, void *unused) {
   /* data may not be allocated if the conn/libnids has seen no data */
   if (!self->hlfs->data)
-    return PyString_FromStringAndSize("", 0);
+    return PyBytes_FromStringAndSize("", 0);
   /* bufsize is an undocumented member */
-  return PyString_FromStringAndSize(self->hlfs->data, self->hlfs->bufsize);
+  return PyBytes_FromStringAndSize(self->hlfs->data, self->hlfs->bufsize);
 }
 static PyObject *hs_get_urgdata(HalfStream *self, void *unused) {
   /* u_char urgdata */
-  return PyString_FromStringAndSize(&(self->hlfs->urgdata),
+  return PyBytes_FromStringAndSize(&(self->hlfs->urgdata),
                                     sizeof(self->hlfs->urgdata));
 }
 HS_GET_INT(count)
