@@ -44,7 +44,6 @@
 #define DBG(p, ...)
 #endif /* DEBUG */
 
-
 #ifndef Py_RETURN_NONE
 #define Py_RETURN_NONE return Py_INCREF(Py_None), Py_None
 #endif /* Py_RETURN_NONE */
@@ -80,62 +79,61 @@ static PyTypeObject HalfStream_Type;
 /* wrapHalfStream used by TcpStream getter */
 static HalfStream *wrapHalfStream(struct half_stream *);
 
-static char pynidsmodule__doc__[] =
-    "A wrapper around the libnids Network Intrusion Detection library.\n"
-    "\n"
-    "Functions:\n"
-    "\n"
-    "param() -- set various libnids parameters\n"
-    "init() -- open the capture stream, prepare internal \n"
-    "getfd() -- return the file descriptor associated with the capture stream\n"
-    "get_pkt_ts() -- return the timestamp of the most recently received "
-    "packet\n"
-    "get_pcap_stats() -- return num packets rcvd, num pkts dropped,\n"
-    "                       num pkts dropped by interface as a tuple\n"
-    "register_ip_frag() -- install a callback for IP fragment processing\n"
-    "register_ip() -- install a callback for reassembled IP packet processing\n"
-    "register_tcp() -- install a callback for reaseembled TCP packet "
-    "processing\n"
-    "register_udp() -- install a callback for reassembled UDP packet "
-    "processing\n"
-    "chksum_ctl() -- control whether packets are checksum by source address\n"
-    "next() -- process one packet from the capture stream, invoking callbacks\n"
-    "run() -- process all packets from the capture stream, invoking callbacks\n"
-    "\n"
-    "Special objects and classes:\n"
-    "\n"
-    "error -- exception raised for serious libnids/pcap errors\n"
-    "TcpStream -- class of argument to TCP callback function.  Features:\n"
-    "             addr -- Connection tuple: ((src, sport), (dst, dport))\n"
-    "             discard(n) -- purge n bytes from the data buffer\n"
-    "             kill() -- send symmetric RSTs to tear down the connection\n"
-    "             nids_state -- see 'Constants,' below\n"
-    "             client -- half of the connection; a TcpStream object\n"
-    "             server -- half of the connection; a TcpStream object\n"
-    "HalfStream -- class of TcpStream 'client' and 'server' members.  "
-    "Features:\n"
-    "              collect -- boolean controlling whether data is collected\n"
-    "              collect_urg -- boolean controlling URG data collection\n"
-    "              count -- number of bytes appended to 'data' since creation\n"
-    "              count_new -- number of newly collected bytes in 'data'\n"
-    "              count_new_urg -- number of new urgent bytes\n"
-    "              data -- string buffer of normal (non-urgent) data\n"
-    "              urgdata -- one-byte string buffer\n"
-    "              offset -- offset of newly collected bytes in 'data'\n"
-    "              state -- [*] numeric socket state\n"
-    "\n"
-    "  * TCP state constants (e.g., TCP_ESTABLISHED) are not supplied by "
-    "pynids\n"
-    "\n"
-    "See the libnids documentation or the pynids README for more information\n"
-    "on the TcpStream and HalfStream objects.\n"
-    "\n"
-    "Constants:\n"
-    "\n"
-    "NIDS_CLOSE, NIDS_DATA, NIDS_EXITING, NIDS_JUST_EST, NIDS_RESET,\n"
-    "NIDS_TIMED_OUT, NIDS_TIMEOUT -- possible values of the 'nids_state' "
-    "member\n"
-    "of a TcpStream object.\n";
+static char pynidsmodule__doc__[] = "A wrapper around the libnids Network Intrusion Detection library.\n"
+                                    "\n"
+                                    "Functions:\n"
+                                    "\n"
+                                    "param() -- set various libnids parameters\n"
+                                    "init() -- open the capture stream, prepare internal \n"
+                                    "getfd() -- return the file descriptor associated with the capture stream\n"
+                                    "get_pkt_ts() -- return the timestamp of the most recently received "
+                                    "packet\n"
+                                    "get_pcap_stats() -- return num packets rcvd, num pkts dropped,\n"
+                                    "                       num pkts dropped by interface as a tuple\n"
+                                    "register_ip_frag() -- install a callback for IP fragment processing\n"
+                                    "register_ip() -- install a callback for reassembled IP packet processing\n"
+                                    "register_tcp() -- install a callback for reaseembled TCP packet "
+                                    "processing\n"
+                                    "register_udp() -- install a callback for reassembled UDP packet "
+                                    "processing\n"
+                                    "chksum_ctl() -- control whether packets are checksum by source address\n"
+                                    "next() -- process one packet from the capture stream, invoking callbacks\n"
+                                    "run() -- process all packets from the capture stream, invoking callbacks\n"
+                                    "\n"
+                                    "Special objects and classes:\n"
+                                    "\n"
+                                    "error -- exception raised for serious libnids/pcap errors\n"
+                                    "TcpStream -- class of argument to TCP callback function.  Features:\n"
+                                    "             addr -- Connection tuple: ((src, sport), (dst, dport))\n"
+                                    "             discard(n) -- purge n bytes from the data buffer\n"
+                                    "             kill() -- send symmetric RSTs to tear down the connection\n"
+                                    "             nids_state -- see 'Constants,' below\n"
+                                    "             client -- half of the connection; a TcpStream object\n"
+                                    "             server -- half of the connection; a TcpStream object\n"
+                                    "HalfStream -- class of TcpStream 'client' and 'server' members.  "
+                                    "Features:\n"
+                                    "              collect -- boolean controlling whether data is collected\n"
+                                    "              collect_urg -- boolean controlling URG data collection\n"
+                                    "              count -- number of bytes appended to 'data' since creation\n"
+                                    "              count_new -- number of newly collected bytes in 'data'\n"
+                                    "              count_new_urg -- number of new urgent bytes\n"
+                                    "              data -- string buffer of normal (non-urgent) data\n"
+                                    "              urgdata -- one-byte string buffer\n"
+                                    "              offset -- offset of newly collected bytes in 'data'\n"
+                                    "              state -- [*] numeric socket state\n"
+                                    "\n"
+                                    "  * TCP state constants (e.g., TCP_ESTABLISHED) are not supplied by "
+                                    "pynids\n"
+                                    "\n"
+                                    "See the libnids documentation or the pynids README for more information\n"
+                                    "on the TcpStream and HalfStream objects.\n"
+                                    "\n"
+                                    "Constants:\n"
+                                    "\n"
+                                    "NIDS_CLOSE, NIDS_DATA, NIDS_EXITING, NIDS_JUST_EST, NIDS_RESET,\n"
+                                    "NIDS_TIMED_OUT, NIDS_TIMEOUT -- possible values of the 'nids_state' "
+                                    "member\n"
+                                    "of a TcpStream object.\n";
 
 static PyObject *raisePynidsError(void) {
   extern char nids_errbuf[];
@@ -257,23 +255,21 @@ static PyMethodDef TcpStream_methods[] = {
     {NULL, NULL} /* sentinel */
 };
 
-#define TS_GET_HLFS(ATTR)                                                      \
-  static PyObject *ts_get_##ATTR(TcpStream *self, void *unused) {              \
-    if (!self->ATTR) {                                                         \
-      self->ATTR = (PyObject *)wrapHalfStream(&self->tcps->ATTR);              \
-      if (!self->ATTR)                                                         \
-        return NULL;                                                           \
-    }                                                                          \
-    Py_INCREF(self->ATTR);                                                     \
-    return self->ATTR;                                                         \
+#define TS_GET_HLFS(ATTR)                                                                                              \
+  static PyObject *ts_get_##ATTR(TcpStream *self, void *unused) {                                                      \
+    if (!self->ATTR) {                                                                                                 \
+      self->ATTR = (PyObject *)wrapHalfStream(&self->tcps->ATTR);                                                      \
+      if (!self->ATTR)                                                                                                 \
+        return NULL;                                                                                                   \
+    }                                                                                                                  \
+    Py_INCREF(self->ATTR);                                                                                             \
+    return self->ATTR;                                                                                                 \
   }
 
 /* RO attributes */
 TS_GET_HLFS(client)
 TS_GET_HLFS(server)
-static PyObject *ts_get_addr(TcpStream *self, void *unused) {
-  return pytuple4(&self->tcps->addr);
-}
+static PyObject *ts_get_addr(TcpStream *self, void *unused) { return pytuple4(&self->tcps->addr); }
 static PyObject *ts_get_nids_state(TcpStream *self, void *unused) {
   return PyLong_FromLong((long)self->tcps->nids_state);
 }
@@ -327,8 +323,7 @@ static PyTypeObject TcpStream_Type = {
 /* HalfStreams: ctor, dtor, methods, members and type                     */
 /* ====================================================================== */
 
-static HalfStream *
-wrapHalfStream(struct half_stream *h) { /* called by TcpStream ctor */
+static HalfStream *wrapHalfStream(struct half_stream *h) { /* called by TcpStream ctor */
   HalfStream *self;
   self = PyObject_New(HalfStream, &HalfStream_Type);
   if (self == NULL)
@@ -344,28 +339,22 @@ static void HalfStream_dealloc(HalfStream *self) {
   PyObject_Del(self);
 }
 
-#define HS_GET_INT(ATTR)                                                       \
-  static PyObject *hs_get_##ATTR(HalfStream *self, void *unused) {             \
-    return PyLong_FromLong((long)self->hlfs->ATTR);                             \
-  }
+#define HS_GET_INT(ATTR)                                                                                               \
+  static PyObject *hs_get_##ATTR(HalfStream *self, void *unused) { return PyLong_FromLong((long)self->hlfs->ATTR); }
 
 /* FIXME - true bool support */
-#define HS_GET_BOOL(ATTR)                                                      \
-  static PyObject *hs_get_##ATTR(HalfStream *self, void *unused) {             \
-    return PyLong_FromLong(self->hlfs->ATTR ? 1L : 0L);                         \
-  }
+#define HS_GET_BOOL(ATTR)                                                                                              \
+  static PyObject *hs_get_##ATTR(HalfStream *self, void *unused) { return PyLong_FromLong(self->hlfs->ATTR ? 1L : 0L); }
 
-#define HS_SET_BOOL(ATTR)                                                      \
-  static int hs_set_##ATTR(HalfStream *self, PyObject *val, void *closure) {   \
-    if (val == NULL) {                                                         \
-      PyErr_SetString(PyExc_TypeError,                                         \
-                      "Cannot delete the " #ATTR "attribute");                 \
-      return -1;                                                               \
-    }                                                                          \
-    DBG("hs_set_" #ATTR "(HalfStream * %p, bool %d)\n", self,                  \
-        PyObject_IsTrue(val));                                                 \
-    self->hlfs->ATTR = PyObject_IsTrue(val);                                   \
-    return 0; /* success */                                                    \
+#define HS_SET_BOOL(ATTR)                                                                                              \
+  static int hs_set_##ATTR(HalfStream *self, PyObject *val, void *closure) {                                           \
+    if (val == NULL) {                                                                                                 \
+      PyErr_SetString(PyExc_TypeError, "Cannot delete the " #ATTR "attribute");                                        \
+      return -1;                                                                                                       \
+    }                                                                                                                  \
+    DBG("hs_set_" #ATTR "(HalfStream * %p, bool %d)\n", self, PyObject_IsTrue(val));                                   \
+    self->hlfs->ATTR = PyObject_IsTrue(val);                                                                           \
+    return 0; /* success */                                                                                            \
   }
 
 /* RW attributes */
@@ -384,8 +373,7 @@ static PyObject *hs_get_data(HalfStream *self, void *unused) {
 }
 static PyObject *hs_get_urgdata(HalfStream *self, void *unused) {
   /* u_char urgdata */
-  return PyBytes_FromStringAndSize(&(self->hlfs->urgdata),
-                                    sizeof(self->hlfs->urgdata));
+  return PyBytes_FromStringAndSize(&(self->hlfs->urgdata), sizeof(self->hlfs->urgdata));
 }
 HS_GET_INT(count)
 HS_GET_INT(offset)
@@ -466,13 +454,11 @@ static void callTcpFunc(struct tcp_stream *ts, void **param) {
   return;
 }
 
-static void callUdpFunc(struct tuple4 *addr, u_char *data, int len,
-                        struct ip *pkt) {
+static void callUdpFunc(struct tuple4 *addr, u_char *data, int len, struct ip *pkt) {
   PyObject *ret = NULL;
 
   DBG("callUdpFunc...\n");
-  ret = PyObject_CallFunction(udpFunc, "(Ns#s#)", pytuple4(addr), data, len,
-                              pkt, ntohs(pkt->ip_len));
+  ret = PyObject_CallFunction(udpFunc, "(Ns#s#)", pytuple4(addr), data, len, pkt, ntohs(pkt->ip_len));
   if (ret) {
     Py_DECREF(ret);
   }
@@ -510,27 +496,26 @@ static void callFragFunc(struct ip *pkt) {
  * ip_frag  fragFunc       callFragFunc
  */
 
-#define makeRegisterFunc(WHAT, FP, PYDISPATCH)                                 \
-                                                                               \
-  static char pynids_register_##WHAT##__doc__[] =                              \
-      "register_" #WHAT "(func) -> None\n"                                     \
-      "\n"                                                                     \
-      "Register the given user-defined function as a callback handler.\n";     \
-                                                                               \
-  static PyObject *pynids_register_##WHAT(PyObject *na, PyObject *args) {      \
-    PyObject *pyFunc = NULL;                                                   \
-    if (!PyArg_ParseTuple(args, "O:register_" #WHAT, &pyFunc))                 \
-      return NULL;                                                             \
-                                                                               \
-    if (FP != NULL) {                                                          \
-      /* (re-)set single, global func ptr */                                   \
-      PyObject_Del(FP);                                                        \
-    }                                                                          \
-    nids_register_##WHAT(PYDISPATCH);                                          \
-    DBG("Inside register_" #WHAT "(%p)\n", pyFunc);                            \
-    FP = pyFunc;                                                               \
-    Py_INCREF(FP);                                                             \
-    Py_RETURN_NONE;                                                            \
+#define makeRegisterFunc(WHAT, FP, PYDISPATCH)                                                                         \
+                                                                                                                       \
+  static char pynids_register_##WHAT##__doc__[] = "register_" #WHAT "(func) -> None\n"                                 \
+                                                  "\n"                                                                 \
+                                                  "Register the given user-defined function as a callback handler.\n"; \
+                                                                                                                       \
+  static PyObject *pynids_register_##WHAT(PyObject *na, PyObject *args) {                                              \
+    PyObject *pyFunc = NULL;                                                                                           \
+    if (!PyArg_ParseTuple(args, "O:register_" #WHAT, &pyFunc))                                                         \
+      return NULL;                                                                                                     \
+                                                                                                                       \
+    if (FP != NULL) {                                                                                                  \
+      /* (re-)set single, global func ptr */                                                                           \
+      PyObject_Del(FP);                                                                                                \
+    }                                                                                                                  \
+    nids_register_##WHAT(PYDISPATCH);                                                                                  \
+    DBG("Inside register_" #WHAT "(%p)\n", pyFunc);                                                                    \
+    FP = pyFunc;                                                                                                       \
+    Py_INCREF(FP);                                                                                                     \
+    Py_RETURN_NONE;                                                                                                    \
   }
 
 /*               What     PyFunc *  C-level Dispatch */
@@ -545,8 +530,7 @@ makeRegisterFunc(ip_frag, fragFunc, callFragFunc);
 /* Module Functions                                                       */
 /* ====================================================================== */
 
-static char pynids_chksum_ctl__doc__[] =
-    "chksum_ctl([(addr1, True), (addr2, False)], ...) -> None\n\
+static char pynids_chksum_ctl__doc__[] = "chksum_ctl([(addr1, True), (addr2, False)], ...) -> None\n\
 \n\
 takes as arguments an list of tuples where a tuple should have the\n\
 following format:\n\
@@ -601,24 +585,20 @@ static int _parse_prefix(char *prefix, u_int *netaddr, u_int *mask) {
   return 0;
 }
 
-static int _parse_chksum_tuple(struct nids_chksum_ctl *ctl, int i,
-                               PyObject *tuple) {
+static int _parse_chksum_tuple(struct nids_chksum_ctl *ctl, int i, PyObject *tuple) {
   PyObject *addr, *action;
 
   addr = PyTuple_GET_ITEM(tuple, 0);
   if (PyString_Check(addr) <= 0) {
-    PyErr_SetString(PyExc_TypeError,
-                    "in (cidr_address, action) cidr_address must be string");
+    PyErr_SetString(PyExc_TypeError, "in (cidr_address, action) cidr_address must be string");
     return -1;
   }
-  if (_parse_prefix(addr, &ctl[i].netaddr, &ctl[i].mask) <
-      0)
+  if (_parse_prefix(addr, &ctl[i].netaddr, &ctl[i].mask) < 0)
     return -1;
 
   action = PyTuple_GET_ITEM(tuple, 1);
   if (PyBool_Check(action) <= 0) {
-    PyErr_SetString(PyExc_TypeError,
-                    "in (cidr_address, action) action must be boolean");
+    PyErr_SetString(PyExc_TypeError, "in (cidr_address, action) action must be boolean");
     return -1;
   }
   if (action == Py_False)
@@ -649,8 +629,7 @@ static PyObject *pynids_chksum_ctl(PyObject *na, PyObject *args) {
     for (i = 0; i < n; i++) {
       tuple = PyList_GetItem(items, i);
       if (PyTuple_Check(tuple) <= 0 || PyTuple_GET_SIZE(tuple) != 2) {
-        PyErr_SetString(PyExc_TypeError,
-                        "list must contain (cidr_address, action) tuples");
+        PyErr_SetString(PyExc_TypeError, "list must contain (cidr_address, action) tuples");
         free(ctl);
         return NULL;
       }
@@ -669,42 +648,41 @@ static PyObject *pynids_chksum_ctl(PyObject *na, PyObject *args) {
   Py_RETURN_NONE;
 }
 
-static char pynids_param__doc__[] =
-    "param(name[, new_value]) -> old_value\n"
-    "\n"
-    "If new_value is specified, set the named nids attribute to the new "
-    "value.\n"
-    "Returns the previous value in any case.  Supported parameters and their\n"
-    "defaults are:\n"
-    "\n"
-    "device -- network device to use as input (None); see also 'filename'\n"
-    "filename -- pcap filename to use as input (None); see also 'device'\n"
-    "dev_addon -- number of bytes in struct sk_buff for layer 2 info (-1)\n"
-    "one_loop_less -- undocumented\n"
-    "n_hosts -- size of IP defragmentation info hash table (256)\n"
-    "n_tcp_streams -- size of TCP connection hash table (1024)\n"
-    "pcap_filter -- pcap filter string applied to unassembled packets (None)\n"
+static char pynids_param__doc__[] = "param(name[, new_value]) -> old_value\n"
+                                    "\n"
+                                    "If new_value is specified, set the named nids attribute to the new "
+                                    "value.\n"
+                                    "Returns the previous value in any case.  Supported parameters and their\n"
+                                    "defaults are:\n"
+                                    "\n"
+                                    "device -- network device to use as input (None); see also 'filename'\n"
+                                    "filename -- pcap filename to use as input (None); see also 'device'\n"
+                                    "dev_addon -- number of bytes in struct sk_buff for layer 2 info (-1)\n"
+                                    "one_loop_less -- undocumented\n"
+                                    "n_hosts -- size of IP defragmentation info hash table (256)\n"
+                                    "n_tcp_streams -- size of TCP connection hash table (1024)\n"
+                                    "pcap_filter -- pcap filter string applied to unassembled packets (None)\n"
 #if (NIDS_MAJOR > 1 || (NIDS_MAJOR == 1 && NIDS_MINOR >= 19))
-    "pcap_timeout-- pcap capture timeout, in milliseconds(1024)\n"
+                                    "pcap_timeout-- pcap capture timeout, in milliseconds(1024)\n"
 #endif /* libnids >= 1.19 */
-    "promisc-- non-zero if promiscuous mode is desired on capture device(1)\n"
-    "sk_buff_size -- size of struct skbuff, used for queueing "
-    "packets (168)\n"
-    "syslog_level -- log level used when syslogging events "
-    "(LOG_ALERT)\n"
-    "scan_num_hosts -- hash table size for portscan detection "
-    "(256)\n"
-    "scan_num_ports -- minimum ports per src. host to qualify as a "
-    "portscan (10)\n"
-    "scan_delay -- maximum delay in milliseconds between (3000)\n"
-    "tcp_flow_timeout -- timeout in seconds to distinguish flows "
-    "with sample tuple\n"
-    "\n"
-    "Either 'device' or 'filename' must be specified before "
-    "calling nids_init().\n"
-    "Portscan detection may be disabled by setting "
-    "'scan_num_hosts' to zero.  See\n"
-    "the libnids documentation for more details.\n";
+                                    "promisc-- non-zero if promiscuous mode is desired on capture device(1)\n"
+                                    "sk_buff_size -- size of struct skbuff, used for queueing "
+                                    "packets (168)\n"
+                                    "syslog_level -- log level used when syslogging events "
+                                    "(LOG_ALERT)\n"
+                                    "scan_num_hosts -- hash table size for portscan detection "
+                                    "(256)\n"
+                                    "scan_num_ports -- minimum ports per src. host to qualify as a "
+                                    "portscan (10)\n"
+                                    "scan_delay -- maximum delay in milliseconds between (3000)\n"
+                                    "tcp_flow_timeout -- timeout in seconds to distinguish flows "
+                                    "with sample tuple\n"
+                                    "\n"
+                                    "Either 'device' or 'filename' must be specified before "
+                                    "calling nids_init().\n"
+                                    "Portscan detection may be disabled by setting "
+                                    "'scan_num_hosts' to zero.  See\n"
+                                    "the libnids documentation for more details.\n";
 
 static PyObject *pynids_param(PyObject *na, PyObject *args) {
   PyObject *v = NULL;
@@ -786,13 +764,12 @@ static PyObject *pynids_param(PyObject *na, PyObject *args) {
   Py_RETURN_NONE;
 }
 
-static char pynids_getfd__doc__[] =
-    "getfd() -> fd\n"
-    "\n"
-    "Returns the integral file descriptor of the live capture device or pcap\n"
-    "savefile specified during the call to init().  The resultant fd is "
-    "suitable\n"
-    "for I/O polling with select.select(), for example.\n";
+static char pynids_getfd__doc__[] = "getfd() -> fd\n"
+                                    "\n"
+                                    "Returns the integral file descriptor of the live capture device or pcap\n"
+                                    "savefile specified during the call to init().  The resultant fd is "
+                                    "suitable\n"
+                                    "for I/O polling with select.select(), for example.\n";
 
 static PyObject *pynids_getfd(PyObject *na, PyObject *args) {
   int pcap_fd;
@@ -826,10 +803,9 @@ static PyObject *pynids_next(PyObject *na, PyObject *args) {
   return PyLong_FromLong((long)ret);
 }
 
-static char pynids_dispatch__doc__[] =
-    "dispatch(cnt) -> processed\n"
-    "\n"
-    "UNDOCUMENTED -- this function does not exist in libnids <= 1.19.\n";
+static char pynids_dispatch__doc__[] = "dispatch(cnt) -> processed\n"
+                                       "\n"
+                                       "UNDOCUMENTED -- this function does not exist in libnids <= 1.19.\n";
 
 static PyObject *pynids_dispatch(PyObject *na, PyObject *args) {
   int ret, cnt;
@@ -844,14 +820,13 @@ static PyObject *pynids_dispatch(PyObject *na, PyObject *args) {
   return PyLong_FromLong((long)ret);
 }
 
-static char pynids_run__doc__[] =
-    "run() -> None\n"
-    "\n"
-    "On a live capture, process packets ad infinitum; on an offline read, "
-    "process\n"
-    "packets until EOF.  In either case, an exception thrown in a user "
-    "callback\n"
-    "or in nids/pcap (as nids.error) may abort processing.\n";
+static char pynids_run__doc__[] = "run() -> None\n"
+                                  "\n"
+                                  "On a live capture, process packets ad infinitum; on an offline read, "
+                                  "process\n"
+                                  "packets until EOF.  In either case, an exception thrown in a user "
+                                  "callback\n"
+                                  "or in nids/pcap (as nids.error) may abort processing.\n";
 
 static PyObject *pynids_run(PyObject *na, PyObject *args) {
   int r;
@@ -881,18 +856,17 @@ static PyObject *pynids_run(PyObject *na, PyObject *args) {
   Py_RETURN_NONE;
 }
 
-static char pynids_init__doc__[] =
-    "init() -> None\n"
-    "\n"
-    "Initialize the nids library, as specified by previous calls to param().  "
-    "In\n"
-    "particular, the capture device 'device' or pcap savefile 'filename' is\n"
-    "opened, the 'pcap_filter' compiled, and various internal mechanisms "
-    "prepared.\n"
-    "\n"
-    "It is appropriate and recommended to drop process privileges after "
-    "making\n"
-    "this call.\n";
+static char pynids_init__doc__[] = "init() -> None\n"
+                                   "\n"
+                                   "Initialize the nids library, as specified by previous calls to param().  "
+                                   "In\n"
+                                   "particular, the capture device 'device' or pcap savefile 'filename' is\n"
+                                   "opened, the 'pcap_filter' compiled, and various internal mechanisms "
+                                   "prepared.\n"
+                                   "\n"
+                                   "It is appropriate and recommended to drop process privileges after "
+                                   "making\n"
+                                   "this call.\n";
 
 static PyObject *pynids_init(PyObject *na, PyObject *args) {
   int ok;
@@ -910,10 +884,9 @@ static PyObject *pynids_init(PyObject *na, PyObject *args) {
   Py_RETURN_NONE;
 }
 
-static char pynids_get_pkt_ts__doc__[] =
-    "get_pkt_time() -> float\n"
-    "\n"
-    "Returns the timestamp of the most recent packet as a float.\n";
+static char pynids_get_pkt_ts__doc__[] = "get_pkt_time() -> float\n"
+                                         "\n"
+                                         "Returns the timestamp of the most recent packet as a float.\n";
 
 static PyObject *pynids_get_pkt_ts(PyObject *na, PyObject *args) {
   double pkt_time;
@@ -921,15 +894,13 @@ static PyObject *pynids_get_pkt_ts(PyObject *na, PyObject *args) {
   if (!PyArg_ParseTuple(args, ":get_pkt_ts"))
     return NULL;
 
-  pkt_time = nids_last_pcap_header->ts.tv_sec +
-             (nids_last_pcap_header->ts.tv_usec / 1000000.0);
+  pkt_time = nids_last_pcap_header->ts.tv_sec + (nids_last_pcap_header->ts.tv_usec / 1000000.0);
   return PyFloat_FromDouble(pkt_time);
 }
 
-static char pynids_get_pcap_stats__doc__[] =
-    "get_pcap_stats() -> tuple\n"
-    "\n"
-    "Returns the pcap recv, drop and interface drop statistics as a tuple.\n";
+static char pynids_get_pcap_stats__doc__[] = "get_pcap_stats() -> tuple\n"
+                                             "\n"
+                                             "Returns the pcap recv, drop and interface drop statistics as a tuple.\n";
 
 static PyObject *pynids_get_pcap_stats(PyObject *na, PyObject *args) {
   static struct pcap_stat ps;
@@ -938,8 +909,7 @@ static PyObject *pynids_get_pcap_stats(PyObject *na, PyObject *args) {
   if (!PyArg_ParseTuple(args, ":get_pcap_stats"))
     return NULL;
 
-  if (nids_params.pcap_desc == NULL ||
-      pcap_stats(nids_params.pcap_desc, &ps) != 0) {
+  if (nids_params.pcap_desc == NULL || pcap_stats(nids_params.pcap_desc, &ps) != 0) {
     raisePynidsError();
     return NULL;
   }
@@ -954,7 +924,7 @@ static PyObject *pynids_get_pcap_stats(PyObject *na, PyObject *args) {
 
 /* List of functions defined in the module */
 
-#define mkMethod(x)                                                            \
+#define mkMethod(x)                                                                                                    \
   { #x, pynids_##x, METH_VARARGS, pynids_##x##__doc__ }
 
 static PyMethodDef pynids_methods[] = {
@@ -1005,8 +975,7 @@ PyMODINIT_FUNC PyInit_nids(void) {
 
   /* Add versioning info */
   PyModule_AddStringConstant(m, "__version__", "0.6.2");
-  PyModule_AddObject(m, "__nids_version__",
-                     PyString_FromFormat("%d.%d", NIDS_MAJOR, NIDS_MINOR));
+  PyModule_AddObject(m, "__nids_version__", PyString_FromFormat("%d.%d", NIDS_MAJOR, NIDS_MINOR));
 
   /* Add NIDS_ symbolic constants to the module */
 #define setConst(CONST) PyModule_AddIntConstant(m, #CONST, CONST)
