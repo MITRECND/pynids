@@ -44,11 +44,6 @@
 #define DBG(p, ...)
 #endif /* DEBUG */
 
-// Macros for initial pass on module port to Python 3
-#define PyString_AsStringAndSize PyBytes_AsStringAndSize
-//  #define PyString_AsString PyBytes_AsString
-#define PyString_AS_STRING PyBytes_AS_STRING
-#define PyString_AsString PyUnicode_AsString
 
 #ifndef Py_RETURN_NONE
 #define Py_RETURN_NONE return Py_INCREF(Py_None), Py_None
@@ -616,7 +611,7 @@ static int _parse_chksum_tuple(struct nids_chksum_ctl *ctl, int i,
                     "in (cidr_address, action) cidr_address must be string");
     return -1;
   }
-  if (_parse_prefix(PyString_AS_STRING(addr), &ctl[i].netaddr, &ctl[i].mask) <
+  if (_parse_prefix(addr, &ctl[i].netaddr, &ctl[i].mask) <
       0)
     return -1;
 
