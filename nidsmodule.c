@@ -43,14 +43,8 @@
 #else
 #define DBG(p, ...)
 #endif /* DEBUG */
-// initial 2to3
-#if PY_MAJOR_VERSION >= 3
 
-#define PyInt_AsLong PyLong_AsLong
-#define PyInt_AS_LONG PyLong_AS_LONG
-#define PyInt_Check PyLong_Check
-#define PyInt_FromLong PyLong_FromLong
-#define PyInt_Type PyLong_Type
+// Macros for initial pass on module port to Python 3
 #define PyString_AsStringAndSize PyBytes_AsStringAndSize
 //  #define PyString_AsString PyBytes_AsString
 #define PyString_AS_STRING PyBytes_AS_STRING
@@ -65,8 +59,8 @@
 #define PyString_FromString PyUnicode_FromString
 #define PyString_Join PyUnicode_Join
 //  #define PyString_Size PyBytes_Size
-#define PyString_Size PyUnicode_Size
-#define PyString_Type PyUnicode_Type
+#define PyString_Size PyBytes_Size
+#define PyString_Type PyBytes_Type
 #define Py_TPFLAGS_HAVE_ITER 0
 #define PyUnicode_AsString(x)                                                  \
   PyBytes_AsString(PyUnicode_AsEncodedString((x), "utf-8", "strict"))
@@ -77,7 +71,6 @@ inline void PyString_ConcatAndDel(PyObject **lhs, PyObject *rhs) {
   Py_DECREF(rhs);
 }
 
-#endif
 
 #ifndef Py_RETURN_NONE
 #define Py_RETURN_NONE return Py_INCREF(Py_None), Py_None
@@ -309,7 +302,7 @@ static PyObject *ts_get_addr(TcpStream *self, void *unused) {
   return pytuple4(&self->tcps->addr);
 }
 static PyObject *ts_get_nids_state(TcpStream *self, void *unused) {
-  return PyInt_FromLong((long)self->tcps->nids_state);
+  return PyLong_FromLong((long)self->tcps->nids_state);
 }
 
 static PyGetSetDef TcpStream_getsets[] = {
@@ -380,13 +373,13 @@ static void HalfStream_dealloc(HalfStream *self) {
 
 #define HS_GET_INT(ATTR)                                                       \
   static PyObject *hs_get_##ATTR(HalfStream *self, void *unused) {             \
-    return PyInt_FromLong((long)self->hlfs->ATTR);                             \
+    return PyLong_FromLong((long)self->hlfs->ATTR);                             \
   }
 
 /* FIXME - true bool support */
 #define HS_GET_BOOL(ATTR)                                                      \
   static PyObject *hs_get_##ATTR(HalfStream *self, void *unused) {             \
-    return PyInt_FromLong(self->hlfs->ATTR ? 1L : 0L);                         \
+    return PyLong_FromLong(self->hlfs->ATTR ? 1L : 0L);                         \
   }
 
 #define HS_SET_BOOL(ATTR)                                                      \
@@ -780,9 +773,9 @@ static PyObject *pynids_param(PyObject *na, PyObject *args) {
 
   if (int_p) {
     /* FIXME - type check val for intishness */
-    ret = PyInt_FromLong((long)*int_p);
+    ret = PyLong_FromLong((long)*int_p);
     if (v)
-      *int_p = (int)PyInt_AsLong(v);
+      *int_p = (int)PyLong_AsLong(v);
     return ret;
   }
 
@@ -836,7 +829,7 @@ static PyObject *pynids_getfd(PyObject *na, PyObject *args) {
 
   if ((pcap_fd = nids_getfd()) == -1)
     return raisePynidsError();
-  return PyInt_FromLong((long)pcap_fd);
+  return PyLong_FromLong((long)pcap_fd);
 }
 
 static char pynids_next__doc__[] = "next() -> r\n"
@@ -857,7 +850,7 @@ static PyObject *pynids_next(PyObject *na, PyObject *args) {
   if (PyErr_Occurred())
     return NULL; /* python callback error */
 
-  return PyInt_FromLong((long)ret);
+  return PyLong_FromLong((long)ret);
 }
 
 static char pynids_dispatch__doc__[] =
@@ -875,7 +868,7 @@ static PyObject *pynids_dispatch(PyObject *na, PyObject *args) {
   if (ret == -1)
     return NULL;
 
-  return PyInt_FromLong((long)ret);
+  return PyLong_FromLong((long)ret);
 }
 
 static char pynids_run__doc__[] =
