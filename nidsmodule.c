@@ -1,23 +1,32 @@
 /*
-	nidsmodule.c - C implementation of pynids
-	Copyright (c) 2003  Michael J. Pomraning <mjp@pilcrow.madison.wi.us>
-	$Id: nidsmodule.c,v 1.11 2005/02/01 05:50:06 mjp Exp $
+ *  nidsmodule.c - C implementation of pynids
+ *  Copyright (c) 2003  Michael J. Pomraning <mjp@pilcrow.madison.wi.us>
+ *  $Id: nidsmodule.c,v 1.11 2005/02/01 05:50:06 mjp Exp $
+ *
+ *  This file is part of the pynids package, a python interface to libnids.
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111, USA
+ */
 
-	This file is part of the pynids package, a python interface to libnids.
-
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
-
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
-
-	You should have received a copy of the GNU General Public License
-	along with this program; if not, write to the Free Software
-	Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111, USA
+/* Porting Module to Python 3:
+ * Resources:
+ * + https://docs.python.org/3/howto/cporting.html
+ * + https://docs.python.org/3/c-api/
+ *
+ *
+ *
  */
 
 #include "Python.h"
@@ -109,55 +118,55 @@ static PyTypeObject HalfStream_Type;
 static HalfStream *wrapHalfStream(struct half_stream *);
 
 static char pynidsmodule__doc__[] =
-"A wrapper around the libnids Network Intrusion Detection library.\n\
-\n\
-Functions:\n\
-\n\
-param() -- set various libnids parameters\n\
-init() -- open the capture stream, prepare internal \n\
-getfd() -- return the file descriptor associated with the capture stream\n\
-get_pkt_ts() -- return the timestamp of the most recently received packet\n\
-get_pcap_stats() -- return num packets rcvd, num pkts dropped,\n\
-                   	num pkts dropped by interface as a tuple\n\
-register_ip_frag() -- install a callback for IP fragment processing\n\
-register_ip() -- install a callback for reassembled IP packet processing\n\
-register_tcp() -- install a callback for reaseembled TCP packet processing\n\
-register_udp() -- install a callback for reassembled UDP packet processing\n\
-chksum_ctl() -- control whether packets are checksum by source address\n\
-next() -- process one packet from the capture stream, invoking callbacks\n\
-run() -- process all packets from the capture stream, invoking callbacks\n\
-\n\
-Special objects and classes:\n\
-\n\
-error -- exception raised for serious libnids/pcap errors\n\
-TcpStream -- class of argument to TCP callback function.  Features:\n\
-             addr -- Connection tuple: ((src, sport), (dst, dport))\n\
-             discard(n) -- purge n bytes from the data buffer\n\
-             kill() -- send symmetric RSTs to tear down the connection\n\
-             nids_state -- see 'Constants,' below\n\
-             client -- half of the connection; a TcpStream object\n\
-             server -- half of the connection; a TcpStream object\n\
-HalfStream -- class of TcpStream 'client' and 'server' members.  Features:\n\
-              collect -- boolean controlling whether data is collected\n\
-              collect_urg -- boolean controlling URG data collection\n\
-              count -- number of bytes appended to 'data' since creation\n\
-              count_new -- number of newly collected bytes in 'data'\n\
-              count_new_urg -- number of new urgent bytes\n\
-              data -- string buffer of normal (non-urgent) data\n\
-              urgdata -- one-byte string buffer\n\
-              offset -- offset of newly collected bytes in 'data'\n\
-              state -- [*] numeric socket state\n\
-\n\
-  * TCP state constants (e.g., TCP_ESTABLISHED) are not supplied by pynids\n\
-\n\
-See the libnids documentation or the pynids README for more information\n\
-on the TcpStream and HalfStream objects.\n\
-\n\
-Constants:\n\
-\n\
-NIDS_CLOSE, NIDS_DATA, NIDS_EXITING, NIDS_JUST_EST, NIDS_RESET,\n\
-NIDS_TIMED_OUT, NIDS_TIMEOUT -- possible values of the 'nids_state' member\n\
-of a TcpStream object.\n";
+    "A wrapper around the libnids Network Intrusion Detection library.\n"
+    "\n"
+    "Functions:\n"
+    "\n"
+    "param() -- set various libnids parameters\n"
+    "init() -- open the capture stream, prepare internal \n"
+    "getfd() -- return the file descriptor associated with the capture stream\n"
+    "get_pkt_ts() -- return the timestamp of the most recently received packet\n"
+    "get_pcap_stats() -- return num packets rcvd, num pkts dropped,\n"
+    "                   	num pkts dropped by interface as a tuple\n"
+    "register_ip_frag() -- install a callback for IP fragment processing\n"
+    "register_ip() -- install a callback for reassembled IP packet processing\n"
+    "register_tcp() -- install a callback for reaseembled TCP packet processing\n"
+    "register_udp() -- install a callback for reassembled UDP packet processing\n"
+    "chksum_ctl() -- control whether packets are checksum by source address\n"
+    "next() -- process one packet from the capture stream, invoking callbacks\n"
+    "run() -- process all packets from the capture stream, invoking callbacks\n"
+    "\n"
+    "Special objects and classes:\n"
+    "\n"
+    "error -- exception raised for serious libnids/pcap errors\n"
+    "TcpStream -- class of argument to TCP callback function.  Features:\n"
+    "             addr -- Connection tuple: ((src, sport), (dst, dport))\n"
+    "             discard(n) -- purge n bytes from the data buffer\n"
+    "             kill() -- send symmetric RSTs to tear down the connection\n"
+    "             nids_state -- see 'Constants,' below\n"
+    "             client -- half of the connection; a TcpStream object\n"
+    "             server -- half of the connection; a TcpStream object\n"
+    "HalfStream -- class of TcpStream 'client' and 'server' members.  Features:\n"
+    "              collect -- boolean controlling whether data is collected\n"
+    "              collect_urg -- boolean controlling URG data collection\n"
+    "              count -- number of bytes appended to 'data' since creation\n"
+    "              count_new -- number of newly collected bytes in 'data'\n"
+    "              count_new_urg -- number of new urgent bytes\n"
+    "              data -- string buffer of normal (non-urgent) data\n"
+    "              urgdata -- one-byte string buffer\n"
+    "              offset -- offset of newly collected bytes in 'data'\n"
+    "              state -- [*] numeric socket state\n"
+    "\n"
+    "  * TCP state constants (e.g., TCP_ESTABLISHED) are not supplied by pynids\n"
+    "\n"
+    "See the libnids documentation or the pynids README for more information\n"
+    "on the TcpStream and HalfStream objects.\n"
+    "\n"
+    "Constants:\n"
+    "\n"
+    "NIDS_CLOSE, NIDS_DATA, NIDS_EXITING, NIDS_JUST_EST, NIDS_RESET,\n"
+    "NIDS_TIMED_OUT, NIDS_TIMEOUT -- possible values of the 'nids_state' member\n"
+	"of a TcpStream object.\n";
 
 static PyObject *
 raisePynidsError(void)
