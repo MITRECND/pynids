@@ -718,30 +718,27 @@ static char pynids_param__doc__[] =
     "n_hosts -- size of IP defragmentation info hash table (256)\n"
     "n_tcp_streams -- size of TCP connection hash table (1024)\n"
     "pcap_filter -- pcap filter string applied to unassembled packets (None)\n"
-    "#if (NIDS_MAJOR > 1 || (NIDS_MAJOR == 1 && NIDS_MINOR >= 19))
-    "    " pcap_timeout-- pcap capture timeout,
-            in milliseconds(1024)\n "
-                                    "#endif /* libnids >= 1.19 */
-                                    "    " promisc-- non
-                - zero if promiscuous mode is desired on capture device(1)\n
-                "
-                "sk_buff_size -- size of struct skbuff, used for queueing "
-                "packets (168)\n"
-                "syslog_level -- log level used when syslogging events "
-                "(LOG_ALERT)\n"
-                "scan_num_hosts -- hash table size for portscan detection "
-                "(256)\n"
-                "scan_num_ports -- minimum ports per src. host to qualify as a "
-                "portscan (10)\n"
-                "scan_delay -- maximum delay in milliseconds between (3000)\n"
-                "tcp_flow_timeout -- timeout in seconds to distinguish flows "
-                "with sample tuple\n"
-                "\n"
-                "Either 'device' or 'filename' must be specified before "
-                "calling nids_init().\n"
-                "Portscan detection may be disabled by setting "
-                "'scan_num_hosts' to zero.  See\n"
-                "the libnids documentation for more details.\n";
+#if (NIDS_MAJOR > 1 || (NIDS_MAJOR == 1 && NIDS_MINOR >= 19))
+    "pcap_timeout-- pcap capture timeout, in milliseconds(1024)\n"
+#endif /* libnids >= 1.19 */
+    "promisc-- non-zero if promiscuous mode is desired on capture device(1)\n"
+    "sk_buff_size -- size of struct skbuff, used for queueing "
+    "packets (168)\n"
+    "syslog_level -- log level used when syslogging events "
+    "(LOG_ALERT)\n"
+    "scan_num_hosts -- hash table size for portscan detection "
+    "(256)\n"
+    "scan_num_ports -- minimum ports per src. host to qualify as a "
+    "portscan (10)\n"
+    "scan_delay -- maximum delay in milliseconds between (3000)\n"
+    "tcp_flow_timeout -- timeout in seconds to distinguish flows "
+    "with sample tuple\n"
+    "\n"
+    "Either 'device' or 'filename' must be specified before "
+    "calling nids_init().\n"
+    "Portscan detection may be disabled by setting "
+    "'scan_num_hosts' to zero.  See\n"
+    "the libnids documentation for more details.\n";
 
 static PyObject *pynids_param(PyObject *na, PyObject *args) {
   PyObject *v = NULL;
