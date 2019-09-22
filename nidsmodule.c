@@ -54,13 +54,13 @@ static PyObject *fragFunc = NULL;
 static struct nids_prm origNidsParams;
 
 typedef struct {
-  PyObject_HEAD struct tcp_stream *tcps;
-  PyObject *client;
-  PyObject *server;
+    PyObject_HEAD struct tcp_stream *tcps;
+    PyObject *client;
+    PyObject *server;
 } TcpStream;
 
 typedef struct {
-  PyObject_HEAD struct half_stream *hlfs;
+    PyObject_HEAD struct half_stream *hlfs;
 } HalfStream;
 
 static PyTypeObject TcpStream_Type;
@@ -126,10 +126,10 @@ static char pynidsmodule__doc__[] = "A wrapper around the libnids Network Intrus
                                     "of a TcpStream object.\n";
 
 static PyObject *raisePynidsError(void) {
-  extern char nids_errbuf[];
+    extern char nids_errbuf[];
 
-  PyErr_SetString(pynids_error, nids_errbuf);
-  return NULL;
+    PyErr_SetString(pynids_error, nids_errbuf);
+    return NULL;
 }
 
 /* nids_dispatch_exc()
@@ -144,40 +144,40 @@ static PyObject *raisePynidsError(void) {
  *
  */
 static int nids_dispatch_exc(int n) {
-  int ret;
+    int ret;
 
-  DBG("nids_dispatch_exc(%d)\n", n);
-  ret = nids_dispatch(n);
-  if (ret == -1) { /* pcap error trumps user callback exception */
-    raisePynidsError();
-    return -1;
-  }
-  if (PyErr_Occurred())
-    return -1; /* check for callback exception */
-  return ret;
+    DBG("nids_dispatch_exc(%d)\n", n);
+    ret = nids_dispatch(n);
+    if (ret == -1) { /* pcap error trumps user callback exception */
+        raisePynidsError();
+        return -1;
+    }
+    if (PyErr_Occurred())
+        return -1; /* check for callback exception */
+    return ret;
 }
 
 /* pytuple4(tuple4): ((src, sport), (dst, dport)) */
 static PyObject *pytuple4(struct tuple4 *addr) {
-  struct in_addr in;
-  PyObject *t1, *t2, *ret;
+    struct in_addr in;
+    PyObject *t1, *t2, *ret;
 
-  in.s_addr = addr->saddr;
-  t1 = Py_BuildValue("si", inet_ntoa(in), addr->source);
-  if (!t1)
-    return NULL;
+    in.s_addr = addr->saddr;
+    t1 = Py_BuildValue("si", inet_ntoa(in), addr->source);
+    if (!t1)
+        return NULL;
 
-  in.s_addr = addr->daddr;
-  t2 = Py_BuildValue("si", inet_ntoa(in), addr->dest);
-  if (!t2) {
+    in.s_addr = addr->daddr;
+    t2 = Py_BuildValue("si", inet_ntoa(in), addr->dest);
+    if (!t2) {
+        Py_DECREF(t1);
+        return NULL;
+    }
+
+    ret = Py_BuildValue("OO", t1, t2);
     Py_DECREF(t1);
-    return NULL;
-  }
-
-  ret = Py_BuildValue("OO", t1, t2);
-  Py_DECREF(t1);
-  Py_DECREF(t2);
-  return ret;
+    Py_DECREF(t2);
+    return ret;
 }
 
 /* ====================================================================== */
@@ -186,34 +186,34 @@ static PyObject *pytuple4(struct tuple4 *addr) {
 
 /* TcpStream ctor -- called by callTcpFunc, not user */
 static TcpStream *wrapTcpStream(struct tcp_stream *t) {
-  TcpStream *self;
-  self = PyObject_New(TcpStream, &TcpStream_Type);
-  if (self == NULL)
-    return NULL;
-  self->tcps = t;
-  self->client = NULL;
-  self->server = NULL;
-  DBG("TcpStream_ctor(%p)\n", self);
-  /*
-   * wrap half streams on demand, if demanded...
-  self->client = (PyObject *) wrapHalfStream(&t->client);
-  self->server = (PyObject *) wrapHalfStream(&t->server);
-   */
-  return self;
+    TcpStream *self;
+    self = PyObject_New(TcpStream, &TcpStream_Type);
+    if (self == NULL)
+        return NULL;
+    self->tcps = t;
+    self->client = NULL;
+    self->server = NULL;
+    DBG("TcpStream_ctor(%p)\n", self);
+    /*
+     * wrap half streams on demand, if demanded...
+    self->client = (PyObject *) wrapHalfStream(&t->client);
+    self->server = (PyObject *) wrapHalfStream(&t->server);
+     */
+    return self;
 }
 
 static void TcpStream_dealloc(TcpStream *self) {
-  DBG("TcpStream_dealloc(%p)\n", self);
-  self->tcps = NULL; /* libnids will free this when approp. */
-  if (self->client) {
-    Py_DECREF(self->client);
-    self->client = NULL;
-  }
-  if (self->server) {
-    Py_DECREF(self->server);
-    self->server = NULL;
-  }
-  PyObject_Del(self);
+    DBG("TcpStream_dealloc(%p)\n", self);
+    self->tcps = NULL; /* libnids will free this when approp. */
+    if (self->client) {
+        Py_DECREF(self->client);
+        self->client = NULL;
+    }
+    if (self->server) {
+        Py_DECREF(self->server);
+        self->server = NULL;
+    }
+    PyObject_Del(self);
 }
 
 /* ====================================================================== */
@@ -221,22 +221,22 @@ static void TcpStream_dealloc(TcpStream *self) {
 /* ====================================================================== */
 
 static PyObject *TcpStream_discard(TcpStream *self, PyObject *args) {
-  int i;
-  if (!PyArg_ParseTuple(args, "i:discard", &i))
-    return NULL;
+    int i;
+    if (!PyArg_ParseTuple(args, "i:discard", &i))
+        return NULL;
 
-  nids_discard(self->tcps, i);
+    nids_discard(self->tcps, i);
 
-  Py_RETURN_NONE;
+    Py_RETURN_NONE;
 }
 
 static PyObject *TcpStream_kill(TcpStream *self, PyObject *args) {
-  if (!PyArg_ParseTuple(args, ":kill"))
-    return NULL;
+    if (!PyArg_ParseTuple(args, ":kill"))
+        return NULL;
 
-  nids_killtcp(self->tcps);
+    nids_killtcp(self->tcps);
 
-  Py_RETURN_NONE;
+    Py_RETURN_NONE;
 }
 
 static PyMethodDef TcpStream_methods[] = {
@@ -246,22 +246,22 @@ static PyMethodDef TcpStream_methods[] = {
 };
 
 #define TS_GET_HLFS(ATTR)                                                                                              \
-  static PyObject *ts_get_##ATTR(TcpStream *self, void *unused) {                                                      \
-    if (!self->ATTR) {                                                                                                 \
-      self->ATTR = (PyObject *)wrapHalfStream(&self->tcps->ATTR);                                                      \
-      if (!self->ATTR)                                                                                                 \
-        return NULL;                                                                                                   \
-    }                                                                                                                  \
-    Py_INCREF(self->ATTR);                                                                                             \
-    return self->ATTR;                                                                                                 \
-  }
+    static PyObject *ts_get_##ATTR(TcpStream *self, void *unused) {                                                    \
+        if (!self->ATTR) {                                                                                             \
+            self->ATTR = (PyObject *)wrapHalfStream(&self->tcps->ATTR);                                                \
+            if (!self->ATTR)                                                                                           \
+                return NULL;                                                                                           \
+        }                                                                                                              \
+        Py_INCREF(self->ATTR);                                                                                         \
+        return self->ATTR;                                                                                             \
+    }
 
 /* RO attributes */
 TS_GET_HLFS(client)
 TS_GET_HLFS(server)
 static PyObject *ts_get_addr(TcpStream *self, void *unused) { return pytuple4(&self->tcps->addr); }
 static PyObject *ts_get_nids_state(TcpStream *self, void *unused) {
-  return PyLong_FromLong((long)self->tcps->nids_state);
+    return PyLong_FromLong((long)self->tcps->nids_state);
 }
 
 static PyGetSetDef TcpStream_getsets[] = {
@@ -314,38 +314,40 @@ static PyTypeObject TcpStream_Type = {
 /* ====================================================================== */
 
 static HalfStream *wrapHalfStream(struct half_stream *h) { /* called by TcpStream ctor */
-  HalfStream *self;
-  self = PyObject_New(HalfStream, &HalfStream_Type);
-  if (self == NULL)
-    return NULL;
-  self->hlfs = h;
-  DBG("HalfStream_ctor(%p)\n", self);
-  return self;
+    HalfStream *self;
+    self = PyObject_New(HalfStream, &HalfStream_Type);
+    if (self == NULL)
+        return NULL;
+    self->hlfs = h;
+    DBG("HalfStream_ctor(%p)\n", self);
+    return self;
 }
 
 static void HalfStream_dealloc(HalfStream *self) {
-  DBG("HalfStream_dealloc(%p, %d)\n", self, self->ob_refcnt);
-  self->hlfs = NULL;
-  PyObject_Del(self);
+    DBG("HalfStream_dealloc(%p, %d)\n", self, self->ob_refcnt);
+    self->hlfs = NULL;
+    PyObject_Del(self);
 }
 
 #define HS_GET_INT(ATTR)                                                                                               \
-  static PyObject *hs_get_##ATTR(HalfStream *self, void *unused) { return PyLong_FromLong((long)self->hlfs->ATTR); }
+    static PyObject *hs_get_##ATTR(HalfStream *self, void *unused) { return PyLong_FromLong((long)self->hlfs->ATTR); }
 
 /* FIXME - true bool support */
 #define HS_GET_BOOL(ATTR)                                                                                              \
-  static PyObject *hs_get_##ATTR(HalfStream *self, void *unused) { return PyLong_FromLong(self->hlfs->ATTR ? 1L : 0L); }
+    static PyObject *hs_get_##ATTR(HalfStream *self, void *unused) {                                                   \
+        return PyLong_FromLong(self->hlfs->ATTR ? 1L : 0L);                                                            \
+    }
 
 #define HS_SET_BOOL(ATTR)                                                                                              \
-  static int hs_set_##ATTR(HalfStream *self, PyObject *val, void *closure) {                                           \
-    if (val == NULL) {                                                                                                 \
-      PyErr_SetString(PyExc_TypeError, "Cannot delete the " #ATTR "attribute");                                        \
-      return -1;                                                                                                       \
-    }                                                                                                                  \
-    DBG("hs_set_" #ATTR "(HalfStream * %p, bool %d)\n", self, PyObject_IsTrue(val));                                   \
-    self->hlfs->ATTR = PyObject_IsTrue(val);                                                                           \
-    return 0; /* success */                                                                                            \
-  }
+    static int hs_set_##ATTR(HalfStream *self, PyObject *val, void *closure) {                                         \
+        if (val == NULL) {                                                                                             \
+            PyErr_SetString(PyExc_TypeError, "Cannot delete the " #ATTR "attribute");                                  \
+            return -1;                                                                                                 \
+        }                                                                                                              \
+        DBG("hs_set_" #ATTR "(HalfStream * %p, bool %d)\n", self, PyObject_IsTrue(val));                               \
+        self->hlfs->ATTR = PyObject_IsTrue(val);                                                                       \
+        return 0; /* success */                                                                                        \
+    }
 
 /* RW attributes */
 HS_GET_BOOL(collect)
@@ -355,15 +357,15 @@ HS_SET_BOOL(collect_urg)
 /* RO attributes */
 HS_GET_INT(state)
 static PyObject *hs_get_data(HalfStream *self, void *unused) {
-  /* data may not be allocated if the conn/libnids has seen no data */
-  if (!self->hlfs->data)
-    return PyBytes_FromStringAndSize("", 0);
-  /* bufsize is an undocumented member */
-  return PyBytes_FromStringAndSize(self->hlfs->data, self->hlfs->bufsize);
+    /* data may not be allocated if the conn/libnids has seen no data */
+    if (!self->hlfs->data)
+        return PyBytes_FromStringAndSize("", 0);
+    /* bufsize is an undocumented member */
+    return PyBytes_FromStringAndSize(self->hlfs->data, self->hlfs->bufsize);
 }
 static PyObject *hs_get_urgdata(HalfStream *self, void *unused) {
-  /* u_char urgdata */
-  return PyBytes_FromStringAndSize(&(self->hlfs->urgdata), sizeof(self->hlfs->urgdata));
+    /* u_char urgdata */
+    return PyBytes_FromStringAndSize(&(self->hlfs->urgdata), sizeof(self->hlfs->urgdata));
 }
 HS_GET_INT(count)
 HS_GET_INT(offset)
@@ -425,55 +427,55 @@ static PyTypeObject HalfStream_Type = {
 /* ====================================================================== */
 
 static void callTcpFunc(struct tcp_stream *ts, void **param) {
-  PyObject *ret = NULL;
-  TcpStream *tso = NULL;
+    PyObject *ret = NULL;
+    TcpStream *tso = NULL;
 
-  DBG("callTcpFunc - init tso\n");
-  tso = wrapTcpStream(ts);
-  if (!tso)
+    DBG("callTcpFunc - init tso\n");
+    tso = wrapTcpStream(ts);
+    if (!tso)
+        return;
+
+    DBG("callTcpFunc - call func %p(%p)\n", tcpFunc, tso);
+    ret = PyObject_CallFunction(tcpFunc, "O", tso);
+
+    DBG("callTcpFunc - dealloc tso (ret: %p)\n", ret);
+    Py_DECREF(tso);
+    if (ret) {
+        Py_DECREF(ret);
+    }
     return;
-
-  DBG("callTcpFunc - call func %p(%p)\n", tcpFunc, tso);
-  ret = PyObject_CallFunction(tcpFunc, "O", tso);
-
-  DBG("callTcpFunc - dealloc tso (ret: %p)\n", ret);
-  Py_DECREF(tso);
-  if (ret) {
-    Py_DECREF(ret);
-  }
-  return;
 }
 
 static void callUdpFunc(struct tuple4 *addr, u_char *data, int len, struct ip *pkt) {
-  PyObject *ret = NULL;
+    PyObject *ret = NULL;
 
-  DBG("callUdpFunc...\n");
-  ret = PyObject_CallFunction(udpFunc, "(Ns#s#)", pytuple4(addr), data, len, pkt, ntohs(pkt->ip_len));
-  if (ret) {
-    Py_DECREF(ret);
-  }
-  return;
+    DBG("callUdpFunc...\n");
+    ret = PyObject_CallFunction(udpFunc, "(Ns#s#)", pytuple4(addr), data, len, pkt, ntohs(pkt->ip_len));
+    if (ret) {
+        Py_DECREF(ret);
+    }
+    return;
 }
 
 static void callIpFunc(struct ip *pkt) {
-  PyObject *ret = NULL;
+    PyObject *ret = NULL;
 
-  DBG("callIpFunc...\n");
-  ret = PyObject_CallFunction(ipFunc, "s#", pkt, ntohs(pkt->ip_len));
-  if (ret) {
-    Py_DECREF(ret);
-  }
-  return;
+    DBG("callIpFunc...\n");
+    ret = PyObject_CallFunction(ipFunc, "s#", pkt, ntohs(pkt->ip_len));
+    if (ret) {
+        Py_DECREF(ret);
+    }
+    return;
 }
 
 static void callFragFunc(struct ip *pkt) {
-  PyObject *ret = NULL;
+    PyObject *ret = NULL;
 
-  ret = PyObject_CallFunction(fragFunc, "s#", pkt, ntohs(pkt->ip_len));
-  if (ret) {
-    Py_DECREF(ret);
-  }
-  return;
+    ret = PyObject_CallFunction(fragFunc, "s#", pkt, ntohs(pkt->ip_len));
+    if (ret) {
+        Py_DECREF(ret);
+    }
+    return;
 }
 
 /* makeRegisterFunc(type, static PyFunction ptr, dispatch)
@@ -488,25 +490,26 @@ static void callFragFunc(struct ip *pkt) {
 
 #define makeRegisterFunc(WHAT, FP, PYDISPATCH)                                                                         \
                                                                                                                        \
-  static char pynids_register_##WHAT##__doc__[] = "register_" #WHAT "(func) -> None\n"                                 \
-                                                  "\n"                                                                 \
-                                                  "Register the given user-defined function as a callback handler.\n"; \
+    static char pynids_register_##WHAT##__doc__[] =                                                                    \
+        "register_" #WHAT "(func) -> None\n"                                                                           \
+        "\n"                                                                                                           \
+        "Register the given user-defined function as a callback handler.\n";                                           \
                                                                                                                        \
-  static PyObject *pynids_register_##WHAT(PyObject *na, PyObject *args) {                                              \
-    PyObject *pyFunc = NULL;                                                                                           \
-    if (!PyArg_ParseTuple(args, "O:register_" #WHAT, &pyFunc))                                                         \
-      return NULL;                                                                                                     \
+    static PyObject *pynids_register_##WHAT(PyObject *na, PyObject *args) {                                            \
+        PyObject *pyFunc = NULL;                                                                                       \
+        if (!PyArg_ParseTuple(args, "O:register_" #WHAT, &pyFunc))                                                     \
+            return NULL;                                                                                               \
                                                                                                                        \
-    if (FP != NULL) {                                                                                                  \
-      /* (re-)set single, global func ptr */                                                                           \
-      PyObject_Del(FP);                                                                                                \
-    }                                                                                                                  \
-    nids_register_##WHAT(PYDISPATCH);                                                                                  \
-    DBG("Inside register_" #WHAT "(%p)\n", pyFunc);                                                                    \
-    FP = pyFunc;                                                                                                       \
-    Py_INCREF(FP);                                                                                                     \
-    Py_RETURN_NONE;                                                                                                    \
-  }
+        if (FP != NULL) {                                                                                              \
+            /* (re-)set single, global func ptr */                                                                     \
+            PyObject_Del(FP);                                                                                          \
+        }                                                                                                              \
+        nids_register_##WHAT(PYDISPATCH);                                                                              \
+        DBG("Inside register_" #WHAT "(%p)\n", pyFunc);                                                                \
+        FP = pyFunc;                                                                                                   \
+        Py_INCREF(FP);                                                                                                 \
+        Py_RETURN_NONE;                                                                                                \
+    }
 
 /*               What     PyFunc *  C-level Dispatch */
 /*               ----     --------  ---------------- */
@@ -534,108 +537,108 @@ the boolean is set to False. If the packet matches none of the list\n\
 elements, the default action is to perform checksumming.\n";
 
 static int _parse_prefix(char *prefix, u_int *netaddr, u_int *mask) {
-  struct in_addr in;
-  char *ptr, *data;
-  u_int m;
+    struct in_addr in;
+    char *ptr, *data;
+    u_int m;
 
-  /* eat up white space */
-  data = prefix;
-  while (*data == ' ' && *data == '\t')
-    data++;
+    /* eat up white space */
+    data = prefix;
+    while (*data == ' ' && *data == '\t')
+        data++;
 
-  /* find end */
-  ptr = data;
-  while (*ptr != '/' && *ptr != '\n' && *ptr != '\0')
-    ptr++;
+    /* find end */
+    ptr = data;
+    while (*ptr != '/' && *ptr != '\n' && *ptr != '\0')
+        ptr++;
 
-  if (*ptr == '/') {
-    *ptr = '\0';
-    ptr++;
+    if (*ptr == '/') {
+        *ptr = '\0';
+        ptr++;
 
-    /* convert the ip to binary */
-    if (inet_pton(AF_INET, data, &in) < 0) {
-      PyErr_SetFromErrno(PyExc_OSError);
-      return -1;
+        /* convert the ip to binary */
+        if (inet_pton(AF_INET, data, &in) < 0) {
+            PyErr_SetFromErrno(PyExc_OSError);
+            return -1;
+        }
+        *netaddr = in.s_addr;
+
+        /* get mask */
+        m = 32 - atoi(ptr);
+        *mask = (m >= 32) ? 0 : htonl((0xffffffff >> m) << m);
+    } else if (strlen(data) >= 7) {
+        /* convert the ip to binary */
+        if (inet_pton(AF_INET, data, &in) < 0) {
+            PyErr_SetFromErrno(PyExc_OSError);
+            return -1;
+        }
+        *netaddr = in.s_addr;
+        *mask = 0xffffffff;
     }
-    *netaddr = in.s_addr;
 
-    /* get mask */
-    m = 32 - atoi(ptr);
-    *mask = (m >= 32) ? 0 : htonl((0xffffffff >> m) << m);
-  } else if (strlen(data) >= 7) {
-    /* convert the ip to binary */
-    if (inet_pton(AF_INET, data, &in) < 0) {
-      PyErr_SetFromErrno(PyExc_OSError);
-      return -1;
-    }
-    *netaddr = in.s_addr;
-    *mask = 0xffffffff;
-  }
-
-  return 0;
+    return 0;
 }
 
 static int _parse_chksum_tuple(struct nids_chksum_ctl *ctl, int i, PyObject *tuple) {
-  PyObject *addr, *action;
+    PyObject *addr, *action;
 
-  addr = PyTuple_GET_ITEM(tuple, 0);
-  if (PyString_Check(addr) <= 0) {
-    PyErr_SetString(PyExc_TypeError, "in (cidr_address, action) cidr_address must be string");
-    return -1;
-  }
-  if (_parse_prefix(addr, &ctl[i].netaddr, &ctl[i].mask) < 0)
-    return -1;
+    addr = PyTuple_GET_ITEM(tuple, 0);
+    if (PyString_Check(addr) <= 0) {
+        PyErr_SetString(PyExc_TypeError, "in (cidr_address, action) cidr_address must be string");
+        return -1;
+    }
+    if (_parse_prefix(addr, &ctl[i].netaddr, &ctl[i].mask) < 0)
+        return -1;
 
-  action = PyTuple_GET_ITEM(tuple, 1);
-  if (PyBool_Check(action) <= 0) {
-    PyErr_SetString(PyExc_TypeError, "in (cidr_address, action) action must be boolean");
-    return -1;
-  }
-  if (action == Py_False)
-    ctl[i].action = NIDS_DONT_CHKSUM;
-  else
-    ctl[i].action = NIDS_DO_CHKSUM;
+    action = PyTuple_GET_ITEM(tuple, 1);
+    if (PyBool_Check(action) <= 0) {
+        PyErr_SetString(PyExc_TypeError, "in (cidr_address, action) action must be boolean");
+        return -1;
+    }
+    if (action == Py_False)
+        ctl[i].action = NIDS_DONT_CHKSUM;
+    else
+        ctl[i].action = NIDS_DO_CHKSUM;
 
-  return 0;
+    return 0;
 }
 
 static PyObject *pynids_chksum_ctl(PyObject *na, PyObject *args) {
-  PyObject *items, *tuple;
-  int i, n;
-  struct nids_chksum_ctl *ctl = NULL;
+    PyObject *items, *tuple;
+    int i, n;
+    struct nids_chksum_ctl *ctl = NULL;
 
-  /* parse args */
-  if (!PyArg_ParseTuple(args, "O:chksum_ctl", &items))
-    return NULL;
-
-  /* parse list of address/action tuples */
-  if (PyList_Check(items) > 0) {
-    n = PyList_Size(items);
-    ctl = (struct nids_chksum_ctl *)malloc(sizeof(struct nids_chksum_ctl) * n);
-    if (ctl == NULL) {
-      PyErr_SetString(PyExc_OSError, "could not allocate temp memory storage");
-      return NULL;
-    }
-    for (i = 0; i < n; i++) {
-      tuple = PyList_GetItem(items, i);
-      if (PyTuple_Check(tuple) <= 0 || PyTuple_GET_SIZE(tuple) != 2) {
-        PyErr_SetString(PyExc_TypeError, "list must contain (cidr_address, action) tuples");
-        free(ctl);
+    /* parse args */
+    if (!PyArg_ParseTuple(args, "O:chksum_ctl", &items))
         return NULL;
-      }
-      if (_parse_chksum_tuple(ctl, i, tuple) < 0) {
-        free(ctl);
+
+    /* parse list of address/action tuples */
+    if (PyList_Check(items) > 0) {
+        n = PyList_Size(items);
+        ctl = (struct nids_chksum_ctl *)malloc(sizeof(struct nids_chksum_ctl) * n);
+        if (ctl == NULL) {
+            PyErr_SetString(PyExc_OSError, "could not allocate temp memory storage");
+            return NULL;
+        }
+        for (i = 0; i < n; i++) {
+            tuple = PyList_GetItem(items, i);
+            if (PyTuple_Check(tuple) <= 0 || PyTuple_GET_SIZE(tuple) != 2) {
+                PyErr_SetString(PyExc_TypeError, "list must contain (cidr_address, action) tuples");
+                free(ctl);
+                return NULL;
+            }
+            if (_parse_chksum_tuple(ctl, i, tuple) < 0) {
+                free(ctl);
+                return NULL;
+            }
+        }
+    } else {
+        PyErr_SetString(PyExc_TypeError, "chksum_ctl requires a list param");
         return NULL;
-      }
     }
-  } else {
-    PyErr_SetString(PyExc_TypeError, "chksum_ctl requires a list param");
-    return NULL;
-  }
 
-  nids_register_chksum_ctl(ctl, n);
+    nids_register_chksum_ctl(ctl, n);
 
-  Py_RETURN_NONE;
+    Py_RETURN_NONE;
 }
 
 static char pynids_param__doc__[] = "param(name[, new_value]) -> old_value\n"
@@ -675,83 +678,83 @@ static char pynids_param__doc__[] = "param(name[, new_value]) -> old_value\n"
                                     "the libnids documentation for more details.\n";
 
 static PyObject *pynids_param(PyObject *na, PyObject *args) {
-  PyObject *v = NULL;
-  PyObject *ret = NULL;
-  int *int_p = NULL;
-  char **char_pp = NULL;
-  char *name;
+    PyObject *v = NULL;
+    PyObject *ret = NULL;
+    int *int_p = NULL;
+    char **char_pp = NULL;
+    char *name;
 
-  if (!PyArg_ParseTuple(args, "s|O", &name, &v))
-    return NULL;
+    if (!PyArg_ParseTuple(args, "s|O", &name, &v))
+        return NULL;
 
-  /* is it an int parameter? */
-  if (!strcmp(name, "n_tcp_streams"))
-    int_p = &nids_params.n_tcp_streams;
-  else if (!strcmp(name, "n_hosts"))
-    int_p = &nids_params.n_hosts;
-  else if (!strcmp(name, "sk_buff_size"))
-    int_p = &nids_params.sk_buff_size;
-  else if (!strcmp(name, "dev_addon"))
-    int_p = &nids_params.dev_addon;
-  else if (!strcmp(name, "syslog_level"))
-    int_p = &nids_params.syslog_level;
-  else if (!strcmp(name, "scan_num_hosts"))
-    int_p = &nids_params.scan_num_hosts;
-  else if (!strcmp(name, "scan_num_ports"))
-    int_p = &nids_params.scan_num_ports;
-  else if (!strcmp(name, "scan_delay"))
-    int_p = &nids_params.scan_delay;
-  else if (!strcmp(name, "promisc"))
-    int_p = &nids_params.promisc;
-  else if (!strcmp(name, "one_loop_less"))
-    int_p = &nids_params.one_loop_less;
+    /* is it an int parameter? */
+    if (!strcmp(name, "n_tcp_streams"))
+        int_p = &nids_params.n_tcp_streams;
+    else if (!strcmp(name, "n_hosts"))
+        int_p = &nids_params.n_hosts;
+    else if (!strcmp(name, "sk_buff_size"))
+        int_p = &nids_params.sk_buff_size;
+    else if (!strcmp(name, "dev_addon"))
+        int_p = &nids_params.dev_addon;
+    else if (!strcmp(name, "syslog_level"))
+        int_p = &nids_params.syslog_level;
+    else if (!strcmp(name, "scan_num_hosts"))
+        int_p = &nids_params.scan_num_hosts;
+    else if (!strcmp(name, "scan_num_ports"))
+        int_p = &nids_params.scan_num_ports;
+    else if (!strcmp(name, "scan_delay"))
+        int_p = &nids_params.scan_delay;
+    else if (!strcmp(name, "promisc"))
+        int_p = &nids_params.promisc;
+    else if (!strcmp(name, "one_loop_less"))
+        int_p = &nids_params.one_loop_less;
 #if (NIDS_MAJOR > 1 || (NIDS_MAJOR == 1 && NIDS_MINOR >= 19))
-  else if (!strcmp(name, "pcap_timeout"))
-    int_p = &nids_params.pcap_timeout;
+    else if (!strcmp(name, "pcap_timeout"))
+        int_p = &nids_params.pcap_timeout;
 #endif /* libnids >= 1.19 */
-  else if (!strcmp(name, "tcp_flow_timeout"))
-    int_p = &nids_params.tcp_flow_timeout;
+    else if (!strcmp(name, "tcp_flow_timeout"))
+        int_p = &nids_params.tcp_flow_timeout;
 
-  if (int_p) {
-    /* FIXME - type check val for intishness */
-    ret = PyLong_FromLong((long)*int_p);
-    if (v)
-      *int_p = (int)PyLong_AsLong(v);
-    return ret;
-  }
-
-  /* is it a char * param? */
-  if (!strcmp(name, "device"))
-    char_pp = &nids_params.device;
-  else if (!strcmp(name, "pcap_filter"))
-    char_pp = &nids_params.pcap_filter;
-  else if (!strcmp(name, "filename"))
-    char_pp = &nids_params.filename;
-
-  if (char_pp) {
-    /* XXX - error checking, PyMem alloc/free */
-    ret = Py_BuildValue("s", *char_pp);
-    if (v) {
-      /* free previous strdup -- fortunately libnids inits these to
-       * NULL...
-       */
-      if (*char_pp)
-        free(*char_pp);
-      *char_pp = (v == Py_None) ? NULL : strdup(PyString_AsString(v));
+    if (int_p) {
+        /* FIXME - type check val for intishness */
+        ret = PyLong_FromLong((long)*int_p);
+        if (v)
+            *int_p = (int)PyLong_AsLong(v);
+        return ret;
     }
-    return ret;
-  }
 
-  /******
-  if (!strcmp(name, "syslog"))
-          func_pp = &nids.syslog;
-  else if (!strcmp(name, "ip_filter"))
-          func_pp = &nids.ip_filter;
-  else if (!strcmp(name, "no_mem"))
-          func_pp = &nids.no_mem;
-******/
+    /* is it a char * param? */
+    if (!strcmp(name, "device"))
+        char_pp = &nids_params.device;
+    else if (!strcmp(name, "pcap_filter"))
+        char_pp = &nids_params.pcap_filter;
+    else if (!strcmp(name, "filename"))
+        char_pp = &nids_params.filename;
 
-  Py_RETURN_NONE;
+    if (char_pp) {
+        /* XXX - error checking, PyMem alloc/free */
+        ret = Py_BuildValue("s", *char_pp);
+        if (v) {
+            /* free previous strdup -- fortunately libnids inits these to
+             * NULL...
+             */
+            if (*char_pp)
+                free(*char_pp);
+            *char_pp = (v == Py_None) ? NULL : strdup(PyString_AsString(v));
+        }
+        return ret;
+    }
+
+    /*
+     * if (!strcmp(name, "syslog"))
+     *         func_pp = &nids.syslog;
+     * else if (!strcmp(name, "ip_filter"))
+     *         func_pp = &nids.ip_filter;
+     * else if (!strcmp(name, "no_mem"))
+     *         func_pp = &nids.no_mem;
+     */
+
+    Py_RETURN_NONE;
 }
 
 static char pynids_getfd__doc__[] = "getfd() -> fd\n"
@@ -762,14 +765,14 @@ static char pynids_getfd__doc__[] = "getfd() -> fd\n"
                                     "for I/O polling with select.select(), for example.\n";
 
 static PyObject *pynids_getfd(PyObject *na, PyObject *args) {
-  int pcap_fd;
+    int pcap_fd;
 
-  if (!PyArg_ParseTuple(args, ":getfd"))
-    return NULL;
+    if (!PyArg_ParseTuple(args, ":getfd"))
+        return NULL;
 
-  if ((pcap_fd = nids_getfd()) == -1)
-    return raisePynidsError();
-  return PyLong_FromLong((long)pcap_fd);
+    if ((pcap_fd = nids_getfd()) == -1)
+        return raisePynidsError();
+    return PyLong_FromLong((long)pcap_fd);
 }
 
 static char pynids_next__doc__[] = "next() -> r\n"
@@ -781,16 +784,16 @@ static char pynids_next__doc__[] = "next() -> r\n"
                                    "pcap raise a nids.error exception.\n";
 
 static PyObject *pynids_next(PyObject *na, PyObject *args) {
-  int ret;
+    int ret;
 
-  if (!PyArg_ParseTuple(args, ":next"))
-    return NULL;
+    if (!PyArg_ParseTuple(args, ":next"))
+        return NULL;
 
-  ret = nids_dispatch_exc(1);
-  if (PyErr_Occurred())
-    return NULL; /* python callback error */
+    ret = nids_dispatch_exc(1);
+    if (PyErr_Occurred())
+        return NULL; /* python callback error */
 
-  return PyLong_FromLong((long)ret);
+    return PyLong_FromLong((long)ret);
 }
 
 static char pynids_dispatch__doc__[] = "dispatch(cnt) -> processed\n"
@@ -798,16 +801,16 @@ static char pynids_dispatch__doc__[] = "dispatch(cnt) -> processed\n"
                                        "UNDOCUMENTED -- this function does not exist in libnids <= 1.19.\n";
 
 static PyObject *pynids_dispatch(PyObject *na, PyObject *args) {
-  int ret, cnt;
+    int ret, cnt;
 
-  if (!PyArg_ParseTuple(args, "i:dispatch", &cnt))
-    return NULL;
+    if (!PyArg_ParseTuple(args, "i:dispatch", &cnt))
+        return NULL;
 
-  ret = nids_dispatch_exc(cnt);
-  if (ret == -1)
-    return NULL;
+    ret = nids_dispatch_exc(cnt);
+    if (ret == -1)
+        return NULL;
 
-  return PyLong_FromLong((long)ret);
+    return PyLong_FromLong((long)ret);
 }
 
 static char pynids_run__doc__[] = "run() -> None\n"
@@ -819,31 +822,31 @@ static char pynids_run__doc__[] = "run() -> None\n"
                                   "or in nids/pcap (as nids.error) may abort processing.\n";
 
 static PyObject *pynids_run(PyObject *na, PyObject *args) {
-  int r;
+    int r;
 
-  if (!PyArg_ParseTuple(args, ":run"))
-    return NULL;
+    if (!PyArg_ParseTuple(args, ":run"))
+        return NULL;
 
-  if (pynids_offline_read) {
-    /* read until EOF, checking for exceptions along the way */
-    do {
-      r = nids_dispatch_exc(1);
-    } while (r > 0);
-  } else {
-    /* read forever, checking for exceptions along the way */
-    do {
-      r = nids_dispatch_exc(1);
-    } while (r >= 0);
-  }
+    if (pynids_offline_read) {
+        /* read until EOF, checking for exceptions along the way */
+        do {
+            r = nids_dispatch_exc(1);
+        } while (r > 0);
+    } else {
+        /* read forever, checking for exceptions along the way */
+        do {
+            r = nids_dispatch_exc(1);
+        } while (r >= 0);
+    }
 
-  if (r == -1)
-    return NULL;
+    if (r == -1)
+        return NULL;
 
 #if 0
     if (r != 0) runtime error!
 #endif
 
-  Py_RETURN_NONE;
+    Py_RETURN_NONE;
 }
 
 static char pynids_init__doc__[] = "init() -> None\n"
@@ -859,19 +862,19 @@ static char pynids_init__doc__[] = "init() -> None\n"
                                    "this call.\n";
 
 static PyObject *pynids_init(PyObject *na, PyObject *args) {
-  int ok;
-  if (!PyArg_ParseTuple(args, ":init"))
-    return NULL;
+    int ok;
+    if (!PyArg_ParseTuple(args, ":init"))
+        return NULL;
 
-  ok = nids_init();
-  if (!ok)
-    return raisePynidsError();
-  if (nids_params.filename)
-    pynids_offline_read = 1;
-  else
-    pynids_offline_read = 0;
+    ok = nids_init();
+    if (!ok)
+        return raisePynidsError();
+    if (nids_params.filename)
+        pynids_offline_read = 1;
+    else
+        pynids_offline_read = 0;
 
-  Py_RETURN_NONE;
+    Py_RETURN_NONE;
 }
 
 static char pynids_get_pkt_ts__doc__[] = "get_pkt_time() -> float\n"
@@ -879,13 +882,13 @@ static char pynids_get_pkt_ts__doc__[] = "get_pkt_time() -> float\n"
                                          "Returns the timestamp of the most recent packet as a float.\n";
 
 static PyObject *pynids_get_pkt_ts(PyObject *na, PyObject *args) {
-  double pkt_time;
+    double pkt_time;
 
-  if (!PyArg_ParseTuple(args, ":get_pkt_ts"))
-    return NULL;
+    if (!PyArg_ParseTuple(args, ":get_pkt_ts"))
+        return NULL;
 
-  pkt_time = nids_last_pcap_header->ts.tv_sec + (nids_last_pcap_header->ts.tv_usec / 1000000.0);
-  return PyFloat_FromDouble(pkt_time);
+    pkt_time = nids_last_pcap_header->ts.tv_sec + (nids_last_pcap_header->ts.tv_usec / 1000000.0);
+    return PyFloat_FromDouble(pkt_time);
 }
 
 static char pynids_get_pcap_stats__doc__[] = "get_pcap_stats() -> tuple\n"
@@ -893,29 +896,29 @@ static char pynids_get_pcap_stats__doc__[] = "get_pcap_stats() -> tuple\n"
                                              "Returns the pcap recv, drop and interface drop statistics as a tuple.\n";
 
 static PyObject *pynids_get_pcap_stats(PyObject *na, PyObject *args) {
-  static struct pcap_stat ps;
-  PyObject *pcap_stats_tuple;
+    static struct pcap_stat ps;
+    PyObject *pcap_stats_tuple;
 
-  if (!PyArg_ParseTuple(args, ":get_pcap_stats"))
-    return NULL;
+    if (!PyArg_ParseTuple(args, ":get_pcap_stats"))
+        return NULL;
 
-  if (nids_params.pcap_desc == NULL || pcap_stats(nids_params.pcap_desc, &ps) != 0) {
-    raisePynidsError();
-    return NULL;
-  }
+    if (nids_params.pcap_desc == NULL || pcap_stats(nids_params.pcap_desc, &ps) != 0) {
+        raisePynidsError();
+        return NULL;
+    }
 
-  pcap_stats_tuple = Py_BuildValue("III", ps.ps_recv, ps.ps_drop, ps.ps_ifdrop);
+    pcap_stats_tuple = Py_BuildValue("III", ps.ps_recv, ps.ps_drop, ps.ps_ifdrop);
 
-  if (!pcap_stats_tuple)
-    return NULL;
+    if (!pcap_stats_tuple)
+        return NULL;
 
-  return pcap_stats_tuple;
+    return pcap_stats_tuple;
 }
 
 /* List of functions defined in the module */
 
 #define mkMethod(x)                                                                                                    \
-  { #x, pynids_##x, METH_VARARGS, pynids_##x##__doc__ }
+    { #x, pynids_##x, METH_VARARGS, pynids_##x##__doc__ }
 
 static PyMethodDef pynids_methods[] = {
     mkMethod(run),
@@ -947,41 +950,41 @@ static struct PyModuleDef moduledef = {
 /* ====================================================================== */
 
 PyMODINIT_FUNC PyInit_nids(void) {
-  PyObject *m;
+    PyObject *m;
 
-  /* Initialize the type of the new type object here; doing it here
-   * is required for portability to Windows without requiring C++. */
-  Py_TYPE(&TcpStream_Type) = &PyType_Type;
-  Py_TYPE(&HalfStream_Type) = &PyType_Type;
+    /* Initialize the type of the new type object here; doing it here
+     * is required for portability to Windows without requiring C++. */
+    Py_TYPE(&TcpStream_Type) = &PyType_Type;
+    Py_TYPE(&HalfStream_Type) = &PyType_Type;
 
-  /* Create the module and add the functions */
+    /* Create the module and add the functions */
 
-  m = PyModule_Create(&moduledef);
+    m = PyModule_Create(&moduledef);
 
-  /* Initialize, add our exception object */
-  pynids_error = PyErr_NewException("nids.error", NULL, NULL);
-  Py_INCREF(pynids_error);
-  PyModule_AddObject(m, "error", pynids_error);
+    /* Initialize, add our exception object */
+    pynids_error = PyErr_NewException("nids.error", NULL, NULL);
+    Py_INCREF(pynids_error);
+    PyModule_AddObject(m, "error", pynids_error);
 
-  /* Add versioning info */
-  PyModule_AddStringConstant(m, "__version__", "0.6.2");
-  PyModule_AddObject(m, "__nids_version__", PyString_FromFormat("%d.%d", NIDS_MAJOR, NIDS_MINOR));
+    /* Add versioning info */
+    PyModule_AddStringConstant(m, "__version__", "0.6.2");
+    PyModule_AddObject(m, "__nids_version__", PyString_FromFormat("%d.%d", NIDS_MAJOR, NIDS_MINOR));
 
-  /* Add NIDS_ symbolic constants to the module */
+    /* Add NIDS_ symbolic constants to the module */
 #define setConst(CONST) PyModule_AddIntConstant(m, #CONST, CONST)
 
-  setConst(NIDS_JUST_EST);
-  setConst(NIDS_DATA);
-  setConst(NIDS_CLOSE);
-  setConst(NIDS_RESET);
-  setConst(NIDS_TIMED_OUT);
+    setConst(NIDS_JUST_EST);
+    setConst(NIDS_DATA);
+    setConst(NIDS_CLOSE);
+    setConst(NIDS_RESET);
+    setConst(NIDS_TIMED_OUT);
 #ifndef NIDS_TIMEOUT
 #define NIDS_TIMEOUT NIDS_TIMED_OUT
 #endif
-  setConst(NIDS_TIMEOUT); /* compat. w/ manpage */
-  setConst(NIDS_EXITING);
+    setConst(NIDS_TIMEOUT); /* compat. w/ manpage */
+    setConst(NIDS_EXITING);
 
-  /* Save the original nids_params */
-  origNidsParams = nids_params;
-  return m;
+    /* Save the original nids_params */
+    origNidsParams = nids_params;
+    return m;
 }
