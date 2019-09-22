@@ -19,16 +19,6 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111, USA
  */
-
-/* Porting Module to Python 3:
- * Resources:
- * + https://docs.python.org/3/howto/cporting.html
- * + https://docs.python.org/3/c-api/
- *
- *
- *
- */
-
 #include "Python.h"
 #include <arpa/inet.h>
 #include <netinet/in.h>
