@@ -523,18 +523,18 @@ makeRegisterFunc(ip_frag, fragFunc, callFragFunc);
 /* Module Functions                                                       */
 /* ====================================================================== */
 
-static char pynids_chksum_ctl__doc__[] = "chksum_ctl([(addr1, True), (addr2, False)], ...) -> None\n\
-\n\
-takes as arguments an list of tuples where a tuple should have the\n\
-following format:\n\
-    (Source address in CIDR format, Boolean whether to apply checksum)\n\
-    e.g. (\"192.168.1.10/24\", True)\n\
-Internal checksumming functions will first check elements of this\n\
-list one by one, and if the source ip of the current packet\n\
-matches the source address and mask of a tuple then the packet with either\n\
-be checksummed if the apply boolean is set to True, or not checksummed if\n\
-the boolean is set to False. If the packet matches none of the list\n\
-elements, the default action is to perform checksumming.\n";
+static char pynids_chksum_ctl__doc__[] = "chksum_ctl([(addr1, True), (addr2, False)], ...) -> None\n"
+                                         "\n"
+                                         "takes as arguments an list of tuples where a tuple should have the\n"
+                                         "following format:\n"
+                                         "    (Source address in CIDR format, Boolean whether to apply checksum)\n"
+                                         "    e.g. (\"192.168.1.10/24\", True)\n"
+                                         "Internal checksumming functions will first check elements of this\n"
+                                         "list one by one, and if the source ip of the current packet\n"
+                                         "matches the source address and mask of a tuple then the packet with either\n"
+                                         "be checksummed if the apply boolean is set to True, or not checksummed if\n"
+                                         "the boolean is set to False. If the packet matches none of the list\n"
+                                         "elements, the default action is to perform checksumming.\n";
 
 static int _parse_prefix(char *prefix, u_int *netaddr, u_int *mask) {
     struct in_addr in;
