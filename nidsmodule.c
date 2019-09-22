@@ -57,20 +57,6 @@
 #define PyString_FromStringAndSize PyUnicode_FromStringAndSize
 //  #define PyString_FromString PyBytes_FromString
 #define PyString_FromString PyUnicode_FromString
-#define PyString_Join PyUnicode_Join
-//  #define PyString_Size PyBytes_Size
-#define PyString_Size PyBytes_Size
-#define PyString_Type PyBytes_Type
-#define Py_TPFLAGS_HAVE_ITER 0
-#define PyUnicode_AsString(x)                                                  \
-  PyBytes_AsString(PyUnicode_AsEncodedString((x), "utf-8", "strict"))
-#define TEXT_T Py_UNICODE
-
-inline void PyString_ConcatAndDel(PyObject **lhs, PyObject *rhs) {
-  PyUnicode_Concat(*lhs, rhs);
-  Py_DECREF(rhs);
-}
-
 
 #ifndef Py_RETURN_NONE
 #define Py_RETURN_NONE return Py_INCREF(Py_None), Py_None
