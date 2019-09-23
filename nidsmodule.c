@@ -341,8 +341,10 @@ static PyObject *hs_get_data(HalfStream *self, void *unused) {
     return PyBytes_FromStringAndSize(self->hlfs->data, self->hlfs->bufsize);
 }
 static PyObject *hs_get_urgdata(HalfStream *self, void *unused) {
-    /* u_char urgdata */
-    return PyBytes_FromStringAndSize(&(self->hlfs->urgdata), sizeof(self->hlfs->urgdata));
+    /* since hlfs->urgdata is a u_char and given the same object representation,
+     * it is okay to use the address of urgdata and store it within a char *
+     */
+    return PyBytes_FromStringAndSize((char *)&(self->hlfs->urgdata), sizeof(self->hlfs->urgdata));
 }
 HS_GET_INT(count)
 HS_GET_INT(offset)
