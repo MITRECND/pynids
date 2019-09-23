@@ -928,7 +928,7 @@ PyMODINIT_FUNC PyInit_nids(void) {
 
     /* Add versioning info */
     PyModule_AddStringConstant(m, "__version__", "0.6.2");
-    PyModule_AddObject(m, "__nids_version__", PyString_FromFormat("%d.%d", NIDS_MAJOR, NIDS_MINOR));
+    PyModule_AddObject(m, "__nids_version__", PyUnicode_FromFormat("%d.%d", NIDS_MAJOR, NIDS_MINOR));
 
     /* Add NIDS_ symbolic constants to the module */
 #define setConst(CONST) PyModule_AddIntConstant(m, #CONST, CONST)
