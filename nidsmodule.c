@@ -275,38 +275,15 @@ static PyGetSetDef TcpStream_getsets[] = {
 static PyTypeObject TcpStream_Type = {
     /* The ob_type field must be initialized in the module init function
      * to be portable to Windows without using C++. */
-    PyObject_HEAD_INIT(NULL) 0, /*ob_size*/
-    "TcpStream",                /*tp_name*/
-    sizeof(TcpStream),          /*tp_basicsize*/
-    0,                          /*tp_itemsize*/
-    /* methods */
-    (destructor)TcpStream_dealloc, /*tp_dealloc*/
-    0,                             /*tp_print*/
-    0,                             /*tp_getattr*/
-    0,                             /*tp_setattr*/
-    0,                             /*tp_compare*/
-    0,                             /*tp_repr*/
-    0,                             /*tp_as_number*/
-    0,                             /*tp_as_sequence*/
-    0,                             /*tp_as_mapping*/
-    0,                             /*tp_hash*/
-    0,                             /*tp_call*/
-    0,                             /*tp_str*/
-    PyObject_GenericGetAttr,       /*tp_getattro*/
-    0,                             /*tp_setattro*/
-    0,                             /*tp_as_buffer*/
-    0,                             /*tp_flags*/
-    0,                             /*tp_doc*/
-    0,                             /*tp_traverse*/
-    0,                             /*tp_clear*/
-    0,                             /*tp_richcompare*/
-    0,                             /*tp_weaklistoffset*/
-    0,                             /*tp_iter*/
-    0,                             /*tp_iternext*/
-    TcpStream_methods,             /*tp_methods*/
-    0,                             /*tp_members*/
-    TcpStream_getsets,             /*tp_getset*/
-    0,                             /*tp_base*/
+    PyVarObject_HEAD_INIT(NULL, 0)
+    .tp_name = "TcpStream",
+    .tp_basicsize = sizeof(TcpStream),
+    .tp_itemsize = 0,
+    .tp_flags = Py_TPFLAGS_DEFAULT,
+    .tp_dealloc = (destructor)TcpStream_dealloc,
+    .tp_getattro = PyObject_GenericGetAttr,
+    .tp_methods = TcpStream_methods,
+    .tp_getset = TcpStream_getsets,
 };
 
 /* ====================================================================== */
@@ -388,38 +365,16 @@ static PyGetSetDef HalfStream_getsets[] = {
 static PyTypeObject HalfStream_Type = {
     /* The ob_type field must be initialized in the module init function
      * to be portable to Windows without using C++. */
-    PyObject_HEAD_INIT(NULL) 0, /*ob_size*/
-    "HalfStream",               /*tp_name*/
-    sizeof(HalfStream),         /*tp_basicsize*/
-    0,                          /*tp_itemsize*/
-    /* methods */
-    (destructor)HalfStream_dealloc, /*tp_dealloc*/
-    0,                              /*tp_print*/
-    0,                              /*tp_getattr*/
-    0,                              /*tp_setattr*/
-    0,                              /*tp_compare*/
-    0,                              /*tp_repr*/
-    0,                              /*tp_as_number*/
-    0,                              /*tp_as_sequence*/
-    0,                              /*tp_as_mapping*/
-    0,                              /*tp_hash*/
-    0,                              /*tp_call*/
-    0,                              /*tp_str*/
-    PyObject_GenericGetAttr,        /*tp_getattro*/
-    PyObject_GenericSetAttr,        /*tp_setattro*/
-    0,                              /*tp_as_buffer*/
-    0,                              /*tp_flags*/
-    0,                              /*tp_doc*/
-    0,                              /*tp_traverse*/
-    0,                              /*tp_clear*/
-    0,                              /*tp_richcompare*/
-    0,                              /*tp_weaklistoffset*/
-    0,                              /*tp_iter*/
-    0,                              /*tp_iternext*/
-    0,                              /*tp_methods*/
-    0,                              /*tp_members*/
-    HalfStream_getsets,             /*tp_getset*/
-    0,                              /*tp_base*/
+
+    PyVarObject_HEAD_INIT(NULL, 0)
+    .tp_name = "HalfStream",
+    .tp_basicsize = sizeof(HalfStream),
+    .tp_itemsize = 0,
+    .tp_flags = Py_TPFLAGS_DEFAULT,
+    .tp_dealloc = (destructor)HalfStream_dealloc,
+    .tp_getattro = PyObject_GenericGetAttr,
+    .tp_setattro = PyObject_GenericSetAttr,
+    .tp_getset = HalfStream_getsets,
 };
 
 /* ====================================================================== */
@@ -582,11 +537,14 @@ static int _parse_chksum_tuple(struct nids_chksum_ctl *ctl, int i, PyObject *tup
     PyObject *addr, *action;
 
     addr = PyTuple_GET_ITEM(tuple, 0);
-    if (PyString_Check(addr) <= 0) {
+
+    if (PyUnicode_Check(addr) > 0)
+        addr = PyBytes_FromObject(addr);
+    if (PyBytes_Check(addr) <= 0) {
         PyErr_SetString(PyExc_TypeError, "in (cidr_address, action) cidr_address must be string");
         return -1;
     }
-    if (_parse_prefix(addr, &ctl[i].netaddr, &ctl[i].mask) < 0)
+    if (_parse_prefix(PyBytes_AS_STRING( addr), &ctl[i].netaddr, &ctl[i].mask) < 0)
         return -1;
 
     action = PyTuple_GET_ITEM(tuple, 1);
@@ -740,7 +698,7 @@ static PyObject *pynids_param(PyObject *na, PyObject *args) {
              */
             if (*char_pp)
                 free(*char_pp);
-            *char_pp = (v == Py_None) ? NULL : strdup(PyString_AsString(v));
+            *char_pp = (v == Py_None) ? NULL : strdup(PyBytes_AsString(v));
         }
         return ret;
     }
