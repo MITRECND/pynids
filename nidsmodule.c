@@ -372,7 +372,6 @@ static PyTypeObject HalfStream_Type = {
     .tp_name = "HalfStream",
     .tp_basicsize = sizeof(HalfStream),
     .tp_itemsize = 0,
-    .tp_flags = Py_TPFLAGS_DEFAULT,
     .tp_dealloc = (destructor)HalfStream_dealloc,
     .tp_getattro = PyObject_GenericGetAttr,
     .tp_setattro = PyObject_GenericSetAttr,
@@ -539,10 +538,7 @@ static int _parse_chksum_tuple(struct nids_chksum_ctl *ctl, int i, PyObject *tup
     PyObject *addr, *action;
 
     addr = PyTuple_GET_ITEM(tuple, 0);
-
-    if (PyUnicode_Check(addr) > 0)
-        addr = PyBytes_FromObject(addr);
-    if (PyBytes_Check(addr) <= 0) {
+    if (PyUnicode_Check(addr) <= 0) {
         PyErr_SetString(PyExc_TypeError, "in (cidr_address, action) cidr_address must be string");
         return -1;
     }
@@ -568,8 +564,9 @@ static PyObject *pynids_chksum_ctl(PyObject *na, PyObject *args) {
     struct nids_chksum_ctl *ctl = NULL;
 
     /* parse args */
-    if (!PyArg_ParseTuple(args, "O:chksum_ctl", &items))
+    if (!PyArg_ParseTuple(args, "O:chksum_ctl", &items)){
         return NULL;
+    }
 
     /* parse list of address/action tuples */
     if (PyList_Check(items) > 0) {
@@ -678,8 +675,9 @@ static PyObject *pynids_param(PyObject *na, PyObject *args) {
     if (int_p) {
         /* FIXME - type check val for intishness */
         ret = PyLong_FromLong((long)*int_p);
-        if (v)
+        if (v) {
             *int_p = (int)PyLong_AsLong(v);
+        }
         return ret;
     }
 
