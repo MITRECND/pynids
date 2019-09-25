@@ -63,7 +63,7 @@ port scan detection.
 ''',
         cmdclass = {'build': nidsMaker},
         ext_modules = [ Extension(
-                            "nidsmodule",
+                            "nids",
                             #define_macros = [ ("DEBUG", None), ],
                             sources=["nidsmodule.c"],
                             include_dirs = INCLUDE_DIRS,
