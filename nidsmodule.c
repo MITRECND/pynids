@@ -721,7 +721,7 @@ syslog_level -- log level used when syslogging events (LOG_ALERT)\n\
 scan_num_hosts -- hash table size for portscan detection (256)\n\
 scan_num_ports -- minimum ports per src. host to qualify as a portscan (10)\n\
 scan_delay -- maximum delay in milliseconds between (3000)\n\
-tcp_flow_timeout -- timeout in seconds to distinguish flows with sample tuple\n\
+tcp_flow_timeout -- timeout in seconds to distinguish flows with same tuple\n\
 \n\
 Either 'device' or 'filename' must be specified before calling nids_init().\n\
 Portscan detection may be disabled by setting 'scan_num_hosts' to zero.  See\n\
