@@ -12,16 +12,13 @@ import os, os.path
 
 pathjoin = os.path.join
 
-PKGNAME  = 'libnids-1.25'
-PKGTAR   = PKGNAME + '.tar.gz'
-BUILDDIR = PKGNAME
+BUILDDIR = 'libnids'
 
 INCLUDE_DIRS  = ['/usr/local/include', '/opt/local/include']
 LIBRARY_DIRS  = ['/usr/local/lib', '/opt/local/lib']
 EXTRA_OBJECTS = []
 
 class nidsMaker(build):
-    NIDSTAR = PKGTAR
     NIDSDIR = BUILDDIR
     include_dirs = [ pathjoin(NIDSDIR, 'src') ]
     library_dirs = []
@@ -29,13 +26,9 @@ class nidsMaker(build):
 
     def buildNids(self):
         # extremely crude package builder
-        try:
-            os.stat(self.NIDSDIR)
-            return None           # assume already built
-        except OSError:
-            pass
+        if os.path.exists(self.extra_objects[0]):
+            return None           # already built
 
-        spawn(['tar', '-zxf', self.NIDSTAR], search_path = 1)
         os.chdir(self.NIDSDIR)
         spawn([pathjoin('.','configure'), 'CFLAGS=-fPIC', '--disable-libglib', '--disable-libnet'])
         spawn(['make'], search_path = 1)
