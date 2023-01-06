@@ -1,6 +1,3 @@
-pynids-0.6.2
-http://github.com/wxsBSD/pynids
-
 Introduction
 ============
 pynids is a python wrapper for libnids, a Network Intrusion Detection System
@@ -10,6 +7,8 @@ port scan detection.
 pynids is free software, copyright (C) 2003, 2004, 2005 Michael J. Pomraning
 <mjp{AT}pilcrow{DOT}madison{DOT}wi{DOT}us>.  See the file COPYING for
 license information.
+
+Changes since 2013 copyright (c) The MITRE Corporation.
 
 libnids is (c) 1999 Rafal Wojtczuk <nergal@avet.com.pl> and licensed under the
 GNU GPL.  See http://www.packetfactory.net/projects/libnids/ for more
